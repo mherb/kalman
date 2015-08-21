@@ -45,3 +45,23 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DEIGEN_NO_DEBUG")
 # Examples
 add_executable(example_robot1 "examples/Robot1/main.cpp")
 
+# Unit Tests
+set(TESTS
+    # EKF
+    "test/ExtendedKalmanFilter.cpp"
+    
+    # UKF
+    "test/UnscentedKalmanFilterBase.cpp"
+    "test/UnscentedKalmanFilter.cpp"
+    "test/SquareRootUnscentedKalmanFilter.cpp"
+    
+    # Utils
+    "test/Matrix.cpp"
+)
+
+enable_testing()
+add_subdirectory("external/googletest")
+include_directories("external/googletest/include")
+add_executable(kalman_test ${TESTS})
+target_link_libraries(kalman_test PRIVATE gtest gtest_main)
+add_test(Kalman kalman_test)
