@@ -88,7 +88,7 @@ TEST(SquareRootUnscentedKalmanFilter, computeCovarianceSquareRootFromSigmaPoints
     // Compute squared S
     auto Ssquared = S.reconstructedMatrix().eval();
     
-    ASSERT_MATRIX_NEAR(P, Ssquared, 2.5e-5);
+    ASSERT_MATRIX_NEAR(P, Ssquared, 3.5e-5);
 }
 
 TEST(SquareRootUnscentedKalmanFilter, computeKalmanGain) {
