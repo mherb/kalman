@@ -103,7 +103,7 @@ namespace Kalman {
          * @param _beta Parameter for prior knowledge about the distribution (beta = 2 is optimal for Gaussian)
          * @param _kappa Secondary scaling parameter (usually 0)
          */
-        UnscentedKalmanFilterBase(T _alpha = T(0.5), T _beta = T(2), T _kappa = T(0)) : alpha(_alpha), beta(_beta), kappa(_kappa)
+        UnscentedKalmanFilterBase(T _alpha = T(1), T _beta = T(2), T _kappa = T(0)) : alpha(_alpha), beta(_beta), kappa(_kappa)
         {
             // Pre-compute all weights
             computeWeights();

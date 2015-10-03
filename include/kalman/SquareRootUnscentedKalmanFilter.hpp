@@ -96,7 +96,7 @@ namespace Kalman {
          * @param beta Parameter for prior knowledge about the distribution (\f$ \beta = 2 \f$ is optimal for Gaussian)
          * @param kappa Secondary scaling parameter (usually 0)
          */
-        SquareRootUnscentedKalmanFilter(T alpha = T(0.5), T beta = T(2), T kappa = T(0))
+        SquareRootUnscentedKalmanFilter(T alpha = T(1), T beta = T(2), T kappa = T(0))
             : UnscentedKalmanFilterBase<StateType>(alpha, beta, kappa)
         {
             // Init covariance to identity
