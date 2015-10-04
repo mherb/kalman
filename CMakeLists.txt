@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(Kalman LANGUAGES CXX)
+project(Kalman CXX)
 
 # TODO: Use VERSION argument to project command after raising the minimum
 # cmake version to 3.0
@@ -100,6 +100,7 @@ configure_package_config_file(cmake/KalmanConfig.cmake.in
   PATH_VARS KALMAN_INCLUDE_DIR KALMAN_USE_FILE)
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/KalmanConfigVersion.cmake
+  VERSION ${PROJECT_VERSION}
   COMPATIBILITY SameMajorVersion)
 
 # Install targets

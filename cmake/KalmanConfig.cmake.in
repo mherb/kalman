@@ -4,10 +4,10 @@
 
 # Use the following variables to compile and link against Kalman:
 #
-#  KALMAN_FOUND              - True if Eigen was found on your system
-#  KALMAN_USE_FILE           - The file making Eigen usable
+#  KALMAN_FOUND              - True if Kalman was found on your system
+#  KALMAN_USE_FILE           - The file making Kalman usable
 #  KALMAN_CXX_FLAGS          - CXX flags needed to needed to build with Kalman
-#  KALMAN_INCLUDE_DIR        - Directory where signature_of_eigen3_matrix_library can be found
+#  KALMAN_INCLUDE_DIR        - Directory where Kalman headers can be found
 
 # Placeholder required for @PACKAGE_...@ substitution
 @PACKAGE_INIT@
