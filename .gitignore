@@ -3,6 +3,7 @@
 
 # IDEs
 .idea
+CMakeLists.txt.user
 
 # Project
 *build
