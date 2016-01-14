@@ -64,6 +64,7 @@ namespace Kalman {
         virtual void updateJacobians( const State& x )
         {
             // No update by default
+            (void)x;
         }
     protected:
         LinearizedMeasurementModel()
