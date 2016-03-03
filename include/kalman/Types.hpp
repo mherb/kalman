@@ -41,7 +41,7 @@ namespace Kalman
      * @param Type The vector type for which to generate a covariance (usually a state or measurement type)
      */
     template<class Type>
-    using Covariance = SquareMatrix<typename Type::Scalar, Type::length>;
+    using Covariance = SquareMatrix<typename Type::Scalar, Type::RowsAtCompileTime>;
     
     /**
      * @class Kalman::CovarianceSquareRoot
@@ -58,14 +58,18 @@ namespace Kalman
      * @param Measurement The measurement type
      */
     template<class State, class Measurement>
-    using KalmanGain = Matrix<typename State::Scalar, State::length, Measurement::length>;
+    using KalmanGain = Matrix<typename State::Scalar,
+                              State::RowsAtCompileTime,
+                              Measurement::RowsAtCompileTime>;
     
     /**
      * @class Kalman::Jacobian
      * @brief Template type of jacobian of A w.r.t. B
      */
     template<class A, class B>
-    using Jacobian = Matrix<typename A::Scalar, A::length, B::length>;
+    using Jacobian = Matrix<typename A::Scalar,
+                            A::RowsAtCompileTime,
+                            B::RowsAtCompileTime>;
 }
 
 #endif

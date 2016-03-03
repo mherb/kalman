@@ -11,9 +11,11 @@ typedef float T;
 
 TEST(UnscentedKalmanFilter, init) {
     auto ukf = UnscentedKalmanFilter<Vector<T, 3>>(1,2,1);
-    
-    // P should be identity
-    ASSERT_TRUE(ukf.P.isIdentity());
+    ASSERT_TRUE(ukf.P.isIdentity()); // P should be identity
+
+    // Same as above, but with general matrix type instead of vector
+    auto ukfMatrix = UnscentedKalmanFilter<Matrix<T, 3, 1>>(1,2,1);
+    ASSERT_TRUE(ukfMatrix.P.isIdentity()); // P should be identity
 }
 
 TEST(UnscentedKalmanFilter, computeSigmaPoints) {

@@ -11,7 +11,9 @@ typedef float T;
 
 TEST(ExtendedKalmanFilter, init) {
     ExtendedKalmanFilter<Vector<T, 3>> ekf;
-    
-    // P should be identity
-    ASSERT_TRUE(ekf.P.isIdentity());
+    ASSERT_TRUE(ekf.P.isIdentity()); // P should be identity
+
+    // Same as above, but with general matrix type instead of vector
+    ExtendedKalmanFilter<Matrix<T, 3, 1>> ekfMatrix;
+    ASSERT_TRUE(ekfMatrix.P.isIdentity()); // P should be identity
 }

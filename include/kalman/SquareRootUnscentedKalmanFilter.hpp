@@ -199,11 +199,13 @@ namespace Kalman {
             auto _S  = S.matrixL().toDenseMatrix();
             
             // Set left "block" (first column)
-            sigmaStatePoints.template leftCols<1>()                             = x;
+            sigmaStatePoints.template leftCols<1>() = x;
             // Set center block with x + gamma * S
-            sigmaStatePoints.template block<State::length, State::length>(0,1)  = ( this->gamma * _S).colwise() + x;
+            sigmaStatePoints.template block<State::RowsAtCompileTime, State::RowsAtCompileTime>(0,1)
+                    = ( this->gamma * _S).colwise() + x;
             // Set right block with x - gamma * S
-            sigmaStatePoints.template rightCols<State::length>()                = (-this->gamma * _S).colwise() + x;
+            sigmaStatePoints.template rightCols<State::RowsAtCompileTime>()
+                    = (-this->gamma * _S).colwise() + x;
             
             return true;
         }
@@ -225,15 +227,15 @@ namespace Kalman {
                                                         const CovarianceSquareRoot<Type>& noiseCov, CovarianceSquareRoot<Type>& cov)
         {
             // Compute QR decomposition of (transposed) augmented matrix
-            Matrix<T, 2*State::length + Type::length, Type::length> tmp;
-            tmp.template topRows<2*State::length>() = std::sqrt(this->sigmaWeights_c[1]) * ( sigmaPoints.template rightCols<SigmaPointCount-1>().colwise() - mean).transpose();
-            tmp.template bottomRows<Type::length>() = noiseCov.matrixU().toDenseMatrix();
+            Matrix<T, 2*State::RowsAtCompileTime + Type::RowsAtCompileTime, Type::RowsAtCompileTime> tmp;
+            tmp.template topRows<2*State::RowsAtCompileTime>() = std::sqrt(this->sigmaWeights_c[1]) * ( sigmaPoints.template rightCols<SigmaPointCount-1>().colwise() - mean).transpose();
+            tmp.template bottomRows<Type::RowsAtCompileTime>() = noiseCov.matrixU().toDenseMatrix();
 
             // TODO: Use ColPivHouseholderQR
             Eigen::HouseholderQR<decltype(tmp)> qr( tmp );
             
             // Set R matrix as upper triangular square root
-            cov.setU(qr.matrixQR().template topRightCorner<Type::length, Type::length>());
+            cov.setU(qr.matrixQR().template topRightCorner<Type::RowsAtCompileTime, Type::RowsAtCompileTime>());
             
             // Perform additional rank 1 update
             // TODO: According to the paper (Section 3, "Cholesky factor updating") the update
@@ -276,8 +278,8 @@ namespace Kalman {
                                 KalmanGain<Measurement>& K)
         {
             // Note: The intermediate eval() is needed here (for now) due to a bug in Eigen that occurs
-            // when Measurement::length == 1 AND State::length >= 8
-            auto W = this->sigmaWeights_c.transpose().template replicate<State::length,1>();
+            // when Measurement::RowsAtCompileTime == 1 AND State::RowsAtCompileTime >= 8
+            auto W = this->sigmaWeights_c.transpose().template replicate<State::RowsAtCompileTime,1>();
             auto P = (sigmaStatePoints.colwise() - x).cwiseProduct( W ).eval()
                    * (sigmaMeasurementPoints.colwise() - y).transpose();
             

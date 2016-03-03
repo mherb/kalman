@@ -63,14 +63,14 @@ namespace Kalman {
     protected:
         // Protected typedefs
         //! The number of sigma points (depending on state dimensionality)
-        static constexpr int SigmaPointCount = 2 * State::length + 1;
+        static constexpr int SigmaPointCount = 2 * State::RowsAtCompileTime + 1;
         
         //! Vector containg the sigma scaling weights
         typedef Vector<T, SigmaPointCount> SigmaWeights;
         
         //! Matrix type containing the sigma state or measurement points
         template<class Type>
-        using SigmaPoints = Matrix<T, Type::length, SigmaPointCount>;
+        using SigmaPoints = Matrix<T, Type::RowsAtCompileTime, SigmaPointCount>;
 
     protected:
         // Member variables
@@ -151,7 +151,7 @@ namespace Kalman {
          */
         void computeWeights()
         {
-            T L = T(State::length);
+            T L = T(State::RowsAtCompileTime);
             lambda = alpha * alpha * ( L + kappa ) - L;
             gamma = std::sqrt( L + lambda );
             

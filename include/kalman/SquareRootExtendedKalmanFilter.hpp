@@ -211,15 +211,15 @@ namespace Kalman {
                                                     CovarianceSquareRoot<Type>& S_pred)
         {
             // Compute QR decomposition of (transposed) augmented matrix
-            Matrix<T, State::length + Type::length, Type::length> tmp;
-            tmp.template topRows<State::length>()   = S.matrixU() * A.transpose();
-            tmp.template bottomRows<Type::length>() = R.matrixU() * B.transpose();
+            Matrix<T, State::RowsAtCompileTime + Type::RowsAtCompileTime, Type::RowsAtCompileTime> tmp;
+            tmp.template topRows<State::RowsAtCompileTime>()   = S.matrixU() * A.transpose();
+            tmp.template bottomRows<Type::RowsAtCompileTime>() = R.matrixU() * B.transpose();
             
             // TODO: Use ColPivHouseholderQR
             Eigen::HouseholderQR<decltype(tmp)> qr( tmp );
             
             // Set S_pred matrix as upper triangular square root
-            S_pred.setU(qr.matrixQR().template topRightCorner<Type::length, Type::length>());
+            S_pred.setU(qr.matrixQR().template topRightCorner<Type::RowsAtCompileTime, Type::RowsAtCompileTime>());
             return true;
         }
         

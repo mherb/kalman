@@ -27,8 +27,11 @@
 #include <Eigen/Dense>
 
 #define KALMAN_VECTOR(NAME, T, N)                                                       \
-    static constexpr int length = N;                                                    \
     typedef Kalman::Vector<T, N> Base;                                                  \
+    using typename Base::Scalar;                                                        \
+    using Base::RowsAtCompileTime;                                                      \
+    using Base::ColsAtCompileTime;                                                      \
+    using Base::SizeAtCompileTime;                                                      \
                                                                                         \
     NAME(void) : Kalman::Vector<T, N>() {}                                              \
                                                                                         \
@@ -43,6 +46,8 @@
     }
 
 namespace Kalman {
+    const int Dynamic = Eigen::Dynamic;
+
     /**
      * @class Kalman::Matrix
      * @brief Template type for matrices
@@ -62,12 +67,14 @@ namespace Kalman {
     class Vector : public Matrix<T, N, 1>
     {
     public:
-        //! Vector length
-        static constexpr int length = N;
-        
         //! Matrix base type
         typedef Matrix<T, N, 1> Base;
-        
+
+        using typename Base::Scalar;
+        using Base::RowsAtCompileTime;
+        using Base::ColsAtCompileTime;
+        using Base::SizeAtCompileTime;
+
         Vector(void) : Matrix<T, N, 1>() {}
         
         /**

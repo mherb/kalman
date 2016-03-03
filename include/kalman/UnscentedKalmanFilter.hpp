@@ -202,11 +202,13 @@ namespace Kalman {
             auto _S = llt.matrixL().toDenseMatrix();
             
             // Set left "block" (first column)
-            sigmaStatePoints.template leftCols<1>()                             = x;
+            sigmaStatePoints.template leftCols<1>() = x;
             // Set center block with x + gamma * S
-            sigmaStatePoints.template block<State::length, State::length>(0,1)  = ( this->gamma * _S).colwise() + x;
+            sigmaStatePoints.template block<State::RowsAtCompileTime, State::RowsAtCompileTime>(0,1)
+                    = ( this->gamma * _S).colwise() + x;
             // Set right block with x - gamma * S
-            sigmaStatePoints.template rightCols<State::length>()                = (-this->gamma * _S).colwise() + x;
+            sigmaStatePoints.template rightCols<State::RowsAtCompileTime>()
+                    = (-this->gamma * _S).colwise() + x;
             
             return true;
         }
@@ -225,7 +227,7 @@ namespace Kalman {
         bool computeCovarianceFromSigmaPoints(  const Type& mean, const SigmaPoints<Type>& sigmaPoints, 
                                                 const Covariance<Type>& noiseCov, Covariance<Type>& cov)
         {
-            auto W   = this->sigmaWeights_c.transpose().template replicate<Type::length,1>();
+            auto W   = this->sigmaWeights_c.transpose().template replicate<Type::RowsAtCompileTime,1>();
             auto tmp = (sigmaPoints.colwise() - mean);
                  cov = tmp.cwiseProduct(W) * tmp.transpose() + noiseCov;
             
@@ -249,8 +251,8 @@ namespace Kalman {
                                 KalmanGain<Measurement>& K)
         {
             // Note: The intermediate eval() is needed here (for now) due to a bug in Eigen that occurs
-            // when Measurement::length == 1 AND State::length >= 8
-            auto W      = this->sigmaWeights_c.transpose().template replicate<State::length,1>();
+            // when Measurement::RowsAtCompileTime == 1 AND State::RowsAtCompileTime >= 8
+            auto W      = this->sigmaWeights_c.transpose().template replicate<State::RowsAtCompileTime,1>();
             auto P_xy   = (sigmaStatePoints.colwise() - x).cwiseProduct( W ).eval()
                         * (sigmaMeasurementPoints.colwise() - y).transpose();
             

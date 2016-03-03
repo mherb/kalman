@@ -34,12 +34,13 @@ public:
     using typename Base::State;
     using typename Base::Measurement;
     
-    static_assert(MeasurementType::length <= StateType::length, "Measurement length must be less than or equal to State length");
+    static_assert(MeasurementType::RowsAtCompileTime <= StateType::RowsAtCompileTime,
+                  "Measurement length must be less than or equal to State length");
     
     Measurement h(const State& x) const
     {
         // return x.^2
-        return x.cwiseProduct(x).template head<Measurement::length>();
+        return x.cwiseProduct(x).template head<Measurement::RowsAtCompileTime>();
     }
 };
 
