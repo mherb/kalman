@@ -34,7 +34,7 @@ public:
     using typename Base::State;
     using typename Base::Measurement;
     
-    static_assert(MeasurementType::RowsAtCompileTime <= StateType::RowsAtCompileTime,
+    static_assert(static_cast<decltype(Kalman::Dynamic)>(MeasurementType::RowsAtCompileTime) <= static_cast<decltype(Kalman::Dynamic)>(StateType::RowsAtCompileTime),
                   "Measurement length must be less than or equal to State length");
     
     Measurement h(const State& x) const
