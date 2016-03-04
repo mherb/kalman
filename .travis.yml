@@ -1,0 +1,33 @@
+language: cpp
+sudo: required
+dist: trusty
+compiler:
+- clang
+- gcc
+env:
+- EIGEN=3.2.8
+- EIGEN=3.3-beta1
+
+# addons:
+#   apt:
+#     sources:
+#     - ubuntu-toolchain-r-test
+#     packages:
+#     - gcc-5
+#     - g++-5
+# 
+# before_install:
+# # Set compiler version
+# - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
+
+install:
+# Install Eigen from source
+- wget https://bitbucket.org/eigen/eigen/get/$EIGEN.tar.bz2 -O /tmp/eigen.tar.bz2
+- mkdir eigen3-src && tar -xvjf /tmp/eigen.tar.bz2 -C eigen3-src --strip-components 1
+- cd eigen3-src && mkdir build && cd build && cmake .. && sudo make install && cd ../..
+
+script:
+- mkdir build
+- cd build
+- cmake .. && make
+- ./kalman_test
