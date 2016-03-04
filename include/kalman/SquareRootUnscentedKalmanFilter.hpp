@@ -196,7 +196,7 @@ namespace Kalman {
         bool computeSigmaPoints()
         {
             // Get square root of covariance
-            auto _S  = S.matrixL().toDenseMatrix();
+            Matrix<T, State::RowsAtCompileTime, State::RowsAtCompileTime> _S  = S.matrixL().toDenseMatrix();
             
             // Set left "block" (first column)
             sigmaStatePoints.template leftCols<1>() = x;
@@ -279,9 +279,10 @@ namespace Kalman {
         {
             // Note: The intermediate eval() is needed here (for now) due to a bug in Eigen that occurs
             // when Measurement::RowsAtCompileTime == 1 AND State::RowsAtCompileTime >= 8
-            auto W = this->sigmaWeights_c.transpose().template replicate<State::RowsAtCompileTime,1>();
-            auto P = (sigmaStatePoints.colwise() - x).cwiseProduct( W ).eval()
-                   * (sigmaMeasurementPoints.colwise() - y).transpose();
+            decltype(sigmaStatePoints) W = this->sigmaWeights_c.transpose().template replicate<State::RowsAtCompileTime,1>();
+            Matrix<T, State::RowsAtCompileTime, Measurement::RowsAtCompileTime> P
+                    = (sigmaStatePoints.colwise() - x).cwiseProduct( W ).eval()
+                    * (sigmaMeasurementPoints.colwise() - y).transpose();
             
             K = S_y.solve(P.transpose()).transpose();
             return true;
@@ -299,7 +300,7 @@ namespace Kalman {
         template<class Measurement>
         bool updateStateCovariance(const KalmanGain<Measurement>& K, const CovarianceSquareRoot<Measurement>& S_y)
         {
-            auto U = K * S_y.matrixL();
+            KalmanGain<Measurement> U = K * S_y.matrixL();
             for(int i = 0; i < U.cols(); ++i)
             {
                 S.rankUpdate( U.col(i), -1 );

@@ -270,7 +270,7 @@ namespace Kalman {
                                     const Jacobian<Measurement, State>& H)
         {
             // TODO: update covariance without using decomposition
-            auto P = S.reconstructedMatrix();
+            Matrix<T, State::RowsAtCompileTime, State::RowsAtCompileTime> P = S.reconstructedMatrix();
             S.compute( (P - K * H * P).eval() );
             return (S.info() == Eigen::Success);
         }

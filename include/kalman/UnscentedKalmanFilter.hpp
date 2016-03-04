@@ -199,7 +199,7 @@ namespace Kalman {
                 return false;
             }
             
-            auto _S = llt.matrixL().toDenseMatrix();
+            SquareMatrix<T, State::RowsAtCompileTime> _S = llt.matrixL().toDenseMatrix();
             
             // Set left "block" (first column)
             sigmaStatePoints.template leftCols<1>() = x;
@@ -227,9 +227,9 @@ namespace Kalman {
         bool computeCovarianceFromSigmaPoints(  const Type& mean, const SigmaPoints<Type>& sigmaPoints, 
                                                 const Covariance<Type>& noiseCov, Covariance<Type>& cov)
         {
-            auto W   = this->sigmaWeights_c.transpose().template replicate<Type::RowsAtCompileTime,1>();
-            auto tmp = (sigmaPoints.colwise() - mean);
-                 cov = tmp.cwiseProduct(W) * tmp.transpose() + noiseCov;
+            decltype(sigmaPoints) W = this->sigmaWeights_c.transpose().template replicate<Type::RowsAtCompileTime,1>();
+            decltype(sigmaPoints) tmp = (sigmaPoints.colwise() - mean);
+            cov = tmp.cwiseProduct(W) * tmp.transpose() + noiseCov;
             
             return true;
         }
@@ -252,9 +252,10 @@ namespace Kalman {
         {
             // Note: The intermediate eval() is needed here (for now) due to a bug in Eigen that occurs
             // when Measurement::RowsAtCompileTime == 1 AND State::RowsAtCompileTime >= 8
-            auto W      = this->sigmaWeights_c.transpose().template replicate<State::RowsAtCompileTime,1>();
-            auto P_xy   = (sigmaStatePoints.colwise() - x).cwiseProduct( W ).eval()
-                        * (sigmaMeasurementPoints.colwise() - y).transpose();
+            decltype(sigmaStatePoints) W = this->sigmaWeights_c.transpose().template replicate<State::RowsAtCompileTime,1>();
+            Matrix<T, State::RowsAtCompileTime, Measurement::RowsAtCompileTime> P_xy
+                    = (sigmaStatePoints.colwise() - x).cwiseProduct( W ).eval()
+                    * (sigmaMeasurementPoints.colwise() - y).transpose();
             
             K = P_xy * P_yy.inverse();
             return true;
