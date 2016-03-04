@@ -65,7 +65,7 @@ TEST(UnscentedKalmanFilterBase, computeSigmaPointTransition) {
     u << 1, 2, 3;
     
     // Compute reference result
-    auto ref = (ukf.sigmaStatePoints.cwiseProduct(ukf.sigmaStatePoints).colwise() + u).eval();
+    Matrix<T,3,7> ref = (ukf.sigmaStatePoints.cwiseProduct(ukf.sigmaStatePoints).colwise() + u).eval();
     
     // Compute transition
     ukf.computeSigmaPointTransition(model, u);
@@ -86,8 +86,8 @@ TEST(UnscentedKalmanFilterBase, computeSigmaPointMeasurements) {
         15, 16, 17, 18, 19, 20, 21;
     
     // Compute Reference result
-    auto tmp = ukf.sigmaStatePoints.template topRows<2>();
-    auto ref = tmp.cwiseProduct(tmp).eval();
+    Matrix<T,2,7> tmp = ukf.sigmaStatePoints.template topRows<2>();
+    Matrix<T,2,7> ref = tmp.cwiseProduct(tmp).eval();
     
     typename ConcreteUKF<Vector<T,3>>::template SigmaPoints<Vector<T,2>> points;
     

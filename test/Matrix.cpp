@@ -25,8 +25,8 @@ TEST(Cholesky, solve) {
     
     // Compute K
     K = S.solve(P.transpose()).transpose();
-    
-    auto P_ = K * S.matrixL().toDenseMatrix() * S.matrixU().toDenseMatrix();
+
+    Matrix<T, 4, 3> P_ = K * S.matrixL().toDenseMatrix() * S.matrixU().toDenseMatrix();
     
     for(int i = 0; i < 4; i++)
     {

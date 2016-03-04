@@ -82,13 +82,13 @@ TEST(SquareRootUnscentedKalmanFilter, computeCovarianceSquareRootFromSigmaPoints
     Matrix<T,4,4> P = Matrix<T,4,4>::Zero();
     for( int i = 0; i <= 2*3; ++i )
     {
-        auto vec = sigmaPoints.col(i) - mean;
+        Vector<T,4> vec = sigmaPoints.col(i) - mean;
         P += ukf.sigmaWeights_c[i] * vec * vec.transpose();
     }
     P += Rsqrt.reconstructedMatrix();
     
     // Compute squared S
-    auto Ssquared = S.reconstructedMatrix().eval();
+    Matrix<T,4,4> Ssquared = S.reconstructedMatrix().eval();
     
     ASSERT_MATRIX_NEAR(P, Ssquared, 3.5e-5);
 }
@@ -170,13 +170,13 @@ TEST(SquareRootUnscentedKalmanFilter, updateStateCovariance) {
     ukf.S.setIdentity();
     
     // Setup reference value for S (computed from regular UKF formula)
-    auto P_ref = ukf.S.reconstructedMatrix() - K * S_y.reconstructedMatrix() * K.transpose();
-    
+    Matrix<T,3,3> P_ref = ukf.S.reconstructedMatrix() - K * S_y.reconstructedMatrix() * K.transpose();
+
     // Perform update
     bool success = ukf.updateStateCovariance<Vector<T,2>>(K, S_y);
     ASSERT_TRUE(success);
-    
-    auto P = ukf.S.reconstructedMatrix();
+
+    Matrix<T,3,3> P = ukf.S.reconstructedMatrix();
     
     ASSERT_MATRIX_NEAR(P_ref, P, 1e-6);
 }
