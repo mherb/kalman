@@ -17,4 +17,33 @@
         }                                       \
     }
 
+/**
+ * Macro to assert two matrices being equal (up to float precision)
+ */
+#define ASSERT_MATRIX_FLOAT_EQ(A,B)          \
+    ASSERT_EQ(A.rows(), B.rows());           \
+    ASSERT_EQ(A.cols(), B.cols());           \
+    for(int i = 0; i < A.rows(); ++i)        \
+    {                                        \
+        for(int j = 0; j < A.cols(); ++j)    \
+        {                                    \
+            ASSERT_FLOAT_EQ(A(i,j), B(i,j)); \
+        }                                    \
+    }
+
+/**
+ * Macro to assert two matrices being equal (up to double precision)
+ */
+#define ASSERT_MATRIX_DOUBLE_EQ(A,B)          \
+    ASSERT_EQ(A.rows(), B.rows());            \
+    ASSERT_EQ(A.cols(), B.cols());            \
+    for(int i = 0; i < A.rows(); ++i)         \
+    {                                         \
+        for(int j = 0; j < A.cols(); ++j)     \
+        {                                     \
+            ASSERT_DOUBLE_EQ(A(i,j), B(i,j)); \
+        }                                     \
+    }
+
+
 #endif
