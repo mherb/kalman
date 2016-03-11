@@ -72,6 +72,7 @@ set(TESTS
     
     # Utils
     test/Matrix.cpp
+    test/AutoDiff.cpp
 )
 
 if(BUILD_TESTING)
