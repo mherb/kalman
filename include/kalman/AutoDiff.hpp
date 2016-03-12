@@ -61,7 +61,7 @@ namespace Kalman {
 
             if(Output<T>::RowsAtCompileTime == Dynamic) {
                 out.resize(output.rows());
-                for(size_t i = 0; i < input.rows(); i++)
+                for(int i = 0; i < input.rows(); i++)
                 {
                     out[i].derivatives().resize(input.rows());
                 }
