@@ -19,8 +19,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-#ifndef KALMAN_AUTODIFF_HPP
-#define KALMAN_AUTODIFF_HPP
+#ifndef KALMAN_AUTODIFF_HPP_
+#define KALMAN_AUTODIFF_HPP_
 
 #include <Eigen/Dense>
 #include <unsupported/Eigen/AutoDiff>
@@ -28,19 +28,19 @@
 
 namespace Kalman {
 
-    template<typename T, template<typename> class Input, template<typename> class Output>
+    template<typename T, class Input, class Output = Input>
     class AutoDiffJacobian {
-        static_assert(Input<T>::ColsAtCompileTime == 1, "Input must be column vector");
-        static_assert(Output<T>::ColsAtCompileTime == 1, "Output must be column vector");
+        static_assert(Input::ColsAtCompileTime == 1, "Input must be column vector");
+        static_assert(Output::ColsAtCompileTime == 1, "Output must be column vector");
 
     public:
-        typedef Eigen::Matrix<T, Output<T>::RowsAtCompileTime, Input<T>::RowsAtCompileTime> Jacobian;
+        typedef Eigen::Matrix<T, Output::RowsAtCompileTime, Input::RowsAtCompileTime> Jacobian;
 
-        typedef Eigen::Matrix<T, Input<T>::RowsAtCompileTime, 1> Gradient;
+        typedef Eigen::Matrix<T, Input::RowsAtCompileTime, 1> Gradient;
         typedef Eigen::AutoDiffScalar<Gradient> ActiveScalar;
 
-        typedef Vector<ActiveScalar, Input<T>::RowsAtCompileTime> ActiveInput;
-        typedef Vector<ActiveScalar, Output<T>::RowsAtCompileTime> ActiveOutput;
+        typedef Vector<ActiveScalar, Input::RowsAtCompileTime> ActiveInput;
+        typedef Vector<ActiveScalar, Output::RowsAtCompileTime> ActiveOutput;
 
         typedef std::function<void(const ActiveInput&, ActiveOutput&)> Function;
 
@@ -50,7 +50,7 @@ namespace Kalman {
 
         }
 
-        void operator()(const Input<T>& input, Output<T>& output, Jacobian& jacobian)
+        void operator()(const Input& input, Output& output, Jacobian& jacobian)
         {
             ActiveInput in = input.template cast<ActiveScalar>();
             ActiveOutput out;
@@ -59,7 +59,7 @@ namespace Kalman {
                 in[i].derivatives() = Gradient::Unit(input.rows(), i);
             }
 
-            if(Output<T>::RowsAtCompileTime == Dynamic) {
+            if(Output::RowsAtCompileTime == Dynamic) {
                 out.resize(output.rows());
                 for(int i = 0; i < input.rows(); i++)
                 {
@@ -69,7 +69,7 @@ namespace Kalman {
 
             function(in, out);
 
-            if(Input<T>::RowsAtCompileTime == Dynamic || Output<T>::RowsAtCompileTime == Dynamic)
+            if(Input::RowsAtCompileTime == Dynamic || Output::RowsAtCompileTime == Dynamic)
             {
                 jacobian.resize(out.rows(), in.rows());
             }
@@ -86,4 +86,4 @@ namespace Kalman {
 
 }
 
-#endif //KALMAN_AUTODIFF_HPP
+#endif //KALMAN_AUTODIFF_HPP_

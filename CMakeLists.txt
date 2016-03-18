@@ -42,6 +42,7 @@ set(HEADERS
     include/kalman/LinearizedSystemModel.hpp
 
     # Utils
+    include/kalman/AutoDiff.hpp
     include/kalman/Matrix.hpp
     include/kalman/Types.hpp
 )

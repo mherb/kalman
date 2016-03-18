@@ -11,9 +11,11 @@ using namespace Kalman;
 template<typename T>
 using Vector3 = Vector<T, 3>;
 
+typedef Vector3<double> Vector3d;
+
 
 TEST(AutoDiff, evaluate) {
-    using ADJ = AutoDiffJacobian<double, Vector3, Vector3>;
+    using ADJ = AutoDiffJacobian<double, Vector3d, Vector3d>;
 
     ADJ::Function func = [](const ADJ::ActiveInput& in, ADJ::ActiveOutput& out) {
         out[0] = in[0];
@@ -24,7 +26,7 @@ TEST(AutoDiff, evaluate) {
     ADJ diff1(func);
 
     ADJ::Jacobian expectedJacobian, actualJacobian;
-    Vector3<double> input, expectedResult, actualResult;
+    Vector3d input, expectedResult, actualResult;
 
     input << 1, 2, 3;
 
