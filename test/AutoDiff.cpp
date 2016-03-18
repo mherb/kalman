@@ -15,7 +15,7 @@ using Vector3 = Vector<T, 3>;
 TEST(AutoDiff, evaluate) {
     using ADJ = AutoDiffJacobian<double, Vector3, Vector3>;
 
-    auto func = [](const ADJ::ActiveInput& in, ADJ::ActiveOutput& out) {
+    ADJ::Function func = [](const ADJ::ActiveInput& in, ADJ::ActiveOutput& out) {
         out[0] = in[0];
         out[1] = ADJ::ActiveScalar(2)*in[1]*in[2];
         out[2] = sin(3*in[0]+in[2]);
