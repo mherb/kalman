@@ -74,6 +74,12 @@ set(TESTS
     # Utils
     test/Matrix.cpp
     test/AutoDiff.cpp
+
+    # Helper
+    test/TestHelper.h
+
+    # Models
+    test/models/Quadratic.hpp
 )
 
 if(BUILD_TESTING)

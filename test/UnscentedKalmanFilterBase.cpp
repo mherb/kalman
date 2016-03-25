@@ -52,7 +52,7 @@ TEST(UnscentedKalmanFilterBase, computeSigmaPointTransition) {
     T alpha = 1, beta = 2, kappa = 1;
     
     auto ukf = ConcreteUKF<Vector<T, 3>>(alpha,beta,kappa);
-    auto model = Kalman::Test::Models::QuadraticSystemModel<Vector<T, 3>>();
+    auto model = Kalman::Test::Models::QuadraticLinearizedSystemModel<Vector<T, 3>>();
     
     // Init variables
     ukf.sigmaStatePoints <<
@@ -77,7 +77,7 @@ TEST(UnscentedKalmanFilterBase, computeSigmaPointMeasurements) {
     T alpha = 1, beta = 2, kappa = 1;
     
     auto ukf = ConcreteUKF<Vector<T, 3>>(alpha,beta,kappa);
-    auto model = Kalman::Test::Models::QuadraticMeasurementModel<Vector<T, 3>, Vector<T, 2>>();
+    auto model = Kalman::Test::Models::QuadraticLinearizedMeasurementModel<Vector<T, 3>, Vector<T, 2>>();
     
     // Init variables
     ukf.sigmaStatePoints <<
