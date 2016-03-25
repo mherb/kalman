@@ -29,41 +29,49 @@ namespace Kalman {
     /**
      * @brief Abstract base class for standard (non-square root) filters and models
      * 
-     * @param StateType The vector-type of the system state (usually some type derived from Kalman::Vector)
+     * @param StateType The vector-type of the system state
      */
     template<class StateType>
     class StandardBase
     {
+    public:
+        //! Numeric scalar type
+        typedef typename StateType::Scalar T;
+        //! State Covariance type aliases
+        typedef Kalman::Covariance<StateType> Covariance;
+        //! State Covariance Square Root type aliases
+        typedef Kalman::CovarianceSquareRoot<StateType> CovarianceSquareRoot;
+
     protected:
         //! Covariance
-        Covariance<StateType> P;
-        
+        Covariance P;
+
     public:
         /**
-         * Get covariance
+         * @brief Get covariance
          */
-        const Covariance<StateType>& getCovariance() const
+        const Covariance& getCovariance() const
         {
             return P;
         }
-        
+
         /**
-         * Get covariance (as square root)
+         * @brief Get covariance (as square root)
          */
-        CovarianceSquareRoot<StateType> getCovarianceSquareRoot() const
+        CovarianceSquareRoot getCovarianceSquareRoot() const
         {
-            return CovarianceSquareRoot<StateType>(P);
+            return CovarianceSquareRoot(P);
         }
-        
+
         /**
-         * Set Covariance
+         * @brief Set Covariance
          */
-        bool setCovariance(const Covariance<StateType>& covariance)
+        bool setCovariance(const Covariance& covariance)
         {
             P = covariance;
             return true;
         }
-        
+
     protected:
         StandardBase()
         {

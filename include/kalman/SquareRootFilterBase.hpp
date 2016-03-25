@@ -29,7 +29,7 @@ namespace Kalman {
     /**
      * @brief Abstract base class for square root filters
      * 
-     * @param StateType The vector-type of the system state (usually some type derived from Kalman::Vector)
+     * @param StateType The vector-type of the system state
      */
     template<class StateType>
     class SquareRootFilterBase : public SquareRootBase<StateType>

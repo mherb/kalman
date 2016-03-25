@@ -35,14 +35,22 @@ namespace Kalman {
     class SquareRootBase
     {
     protected:
+        //! Numeric scalar type
+        typedef typename StateType::Scalar T;
+        //! State Covariance type aliases
+        typedef Kalman::Covariance<StateType> Covariance;
+        //! State Covariance Square Root type aliases
+        typedef Kalman::CovarianceSquareRoot<StateType> CovarianceSquareRoot;
+
+    protected:
         //! Covariance Square Root
-        CovarianceSquareRoot<StateType> S;
+        CovarianceSquareRoot S;
         
     public:
         /**
          * Get covariance (as square root)
          */
-        const CovarianceSquareRoot<StateType>& getCovarianceSquareRoot() const
+        const CovarianceSquareRoot& getCovarianceSquareRoot() const
         {
             return S;
         }
@@ -50,7 +58,7 @@ namespace Kalman {
         /**
          * Get covariance reconstructed from square root
          */
-        Covariance<StateType> getCovariance() const
+        Covariance getCovariance() const
         {
             return S.reconstructedMatrix();
         }
@@ -58,7 +66,7 @@ namespace Kalman {
         /**
          * Set Covariance
          */
-        bool setCovariance(const Covariance<StateType>& covariance)
+        bool setCovariance(const Covariance& covariance)
         {
             S.compute(covariance);
             return (S.info() == Eigen::Success);
