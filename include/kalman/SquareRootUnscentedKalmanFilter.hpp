@@ -72,7 +72,11 @@ namespace Kalman {
         
         //! Kalman Gain Matrix Type
         template<class Measurement>
-        using KalmanGain = Kalman::KalmanGain<State, Measurement>;
+        using KalmanGain = Kalman::KalmanGain<T, State, Measurement>;
+
+        //! Covariance Square Root type alias
+        template<typename Type>
+        using CovarianceSquareRoot = Kalman::CovarianceSquareRoot<T, Type>;
         
     protected:
         // Member variables

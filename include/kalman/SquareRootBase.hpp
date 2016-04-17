@@ -38,9 +38,9 @@ namespace Kalman {
         //! Numeric scalar type
         typedef typename StateType::Scalar T;
         //! State Covariance type aliases
-        typedef Kalman::Covariance<StateType> Covariance;
+        typedef Kalman::Covariance<T, StateType> Covariance;
         //! State Covariance Square Root type aliases
-        typedef Kalman::CovarianceSquareRoot<StateType> CovarianceSquareRoot;
+        typedef Kalman::CovarianceSquareRoot<T, StateType> CovarianceSquareRoot;
 
     protected:
         //! Covariance Square Root

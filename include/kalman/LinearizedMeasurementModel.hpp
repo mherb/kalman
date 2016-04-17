@@ -54,9 +54,9 @@ namespace Kalman {
         
     protected:
         //! Measurement model jacobian
-        Jacobian<Measurement, State> H;
+        Jacobian<typename StateType::Scalar, State, Measurement> H;
         //! Measurement model noise jacobian
-        Jacobian<Measurement, Measurement> V;
+        Jacobian<typename StateType::Scalar, Measurement> V;
         
         /**
          * Callback function for state-dependent update of Jacobi-matrices H and V before each update step

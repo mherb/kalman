@@ -38,38 +38,44 @@ namespace Kalman
     /**
      * @class Kalman::Covariance
      * @brief Template type for covariance matrices
+     * @param T Numeric scalar type
      * @param Type The vector type for which to generate a covariance (usually a state or measurement type)
      */
-    template<class Type>
-    using Covariance = SquareMatrix<typename Type::Scalar, Type::RowsAtCompileTime>;
+    template<typename T, class Type>
+    using Covariance = SquareMatrix<T, Type::RowsAtCompileTime>;
     
     /**
      * @class Kalman::CovarianceSquareRoot
      * @brief Template type for covariance square roots
+     * @param T Numeric scalar type
      * @param Type The vector type for which to generate a covariance (usually a state or measurement type)
      */
-    template<class Type>
-    using CovarianceSquareRoot = Cholesky< Covariance<Type> >;
+    template<typename T, class Type>
+    using CovarianceSquareRoot = Cholesky< Covariance<T, Type> >;
     
     /**
      * @class Kalman::KalmanGain
      * @brief Template type of Kalman Gain
+     * @param T Numeric scalar type
      * @param State The system state type
      * @param Measurement The measurement type
      */
-    template<class State, class Measurement>
-    using KalmanGain = Matrix<typename State::Scalar,
+    template<typename T, class State, class Measurement>
+    using KalmanGain = Matrix<T,
                               State::RowsAtCompileTime,
                               Measurement::RowsAtCompileTime>;
     
     /**
      * @class Kalman::Jacobian
-     * @brief Template type of jacobian of A w.r.t. B
+     * @brief Template type of a Jacobian for some function Output = f(Input)
+     * @param T Numeric scalar type
+     * @param Input Input vector type of the function
+     * @param Output Output vector type of the function
      */
-    template<class A, class B>
-    using Jacobian = Matrix<typename A::Scalar,
-                            A::RowsAtCompileTime,
-                            B::RowsAtCompileTime>;
+    template<typename T, class Input, class Output = Input>
+    using Jacobian = Matrix<T,
+                            Output::RowsAtCompileTime,
+                            Input::RowsAtCompileTime>;
 }
 
 #endif

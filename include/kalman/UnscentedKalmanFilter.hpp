@@ -72,7 +72,11 @@ namespace Kalman {
         
         //! Kalman Gain Matrix Type
         template<class Measurement>
-        using KalmanGain = Kalman::KalmanGain<State, Measurement>;
+        using KalmanGain = Kalman::KalmanGain<T, State, Measurement>;
+
+        //! Covariance type alias
+        template<typename Type>
+        using Covariance = Kalman::Covariance<T, Type>;
         
     protected:
         // Member variables
@@ -192,7 +196,7 @@ namespace Kalman {
         bool computeSigmaPoints()
         {
             // Get square root of covariance
-            CovarianceSquareRoot<State> llt;
+            CovarianceSquareRoot<T, State> llt;
             llt.compute(P);
             if(llt.info() != Eigen::Success)
             {

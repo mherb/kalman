@@ -54,9 +54,9 @@ namespace Kalman {
         
     protected:
         //! System model jacobian
-        Jacobian<State, State> F;
+        Jacobian<typename StateType::Scalar, State> F;
         //! System model noise jacobian
-        Jacobian<State, State> W;
+        Jacobian<typename StateType::Scalar, State> W;
         
         /**
          * Callback function for state-dependent update of Jacobi-matrices F and W before each update step

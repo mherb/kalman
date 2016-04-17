@@ -64,8 +64,12 @@ namespace Kalman {
     protected:
         //! Kalman Gain Matrix Type
         template<class Measurement>
-        using KalmanGain = Kalman::KalmanGain<State, Measurement>;
-        
+        using KalmanGain = Kalman::KalmanGain<T, State, Measurement>;
+
+        //! Covariance type alias
+        template<typename Type>
+        using Covariance = Kalman::Covariance<T, Type>;
+
     protected:
         //! State Estimate
         using KalmanBase::x;
