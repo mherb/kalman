@@ -60,6 +60,7 @@ namespace Kalman {
         
     protected:
         MeasurementModel() {}
+        virtual ~MeasurementModel() {}
     };
 }
 
