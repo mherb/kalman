@@ -27,6 +27,7 @@
 #include "KalmanFilterBase.hpp"
 #include "SystemModel.hpp"
 #include "MeasurementModel.hpp"
+#include "Model.hpp"
 
 namespace Kalman {
     
@@ -128,6 +129,24 @@ namespace Kalman {
             // Compute predicted state from predicted sigma points
             return computePredictionFromSigmaPoints<State>(sigmaStatePoints);
         }
+
+        /**
+         * @brief Compute predicted state using system model and control input
+         *
+         * @param [in] system The System Model
+         * @param [in] args Additional prediction arguments (i.e. control input)
+         * @return The predicted state
+         */
+        template<class System, typename... Args>
+        typename std::enable_if< Model::isTemplateModel<System, State, Args...>::value, State >::type
+        computeStatePrediction(System& system, Args&&... args)
+        {
+            // Pass each sigma point through non-linear state transition function
+            computeSigmaPointTransition(system, std::forward<Args...>(args...));
+
+            // Compute predicted state from predicted sigma points
+            return computePredictionFromSigmaPoints<State>(sigmaStatePoints);
+        }
         
         /**
          * @brief Compute predicted measurement using measurement model and predicted sigma measurements
@@ -142,6 +161,25 @@ namespace Kalman {
             // Predict measurements for each sigma point
             computeSigmaPointMeasurements<Measurement>(m, sigmaMeasurementPoints);
             
+            // Predict measurement from sigma measurement points
+            return computePredictionFromSigmaPoints<Measurement>(sigmaMeasurementPoints);
+        }
+
+        /**
+         * @brief Compute predicted measurement using measurement model and predicted sigma measurements
+         *
+         * @param [in] m The Measurement Model
+         * @param [in] sigmaMeasurementPoints The predicted sigma measurement points
+         * @param [in] args Optional measurement function arguments
+         * @return The predicted measurement
+         */
+        template<class Measurement, class MeasurementModel, typename... Args>
+        typename std::enable_if< Model::isTemplateModel<MeasurementModel, State, Measurement, Args...>::value, Measurement >::type
+        computeMeasurementPrediction(MeasurementModel& model, SigmaPoints<Measurement>& sigmaMeasurementPoints, Args&&... args)
+        {
+            // Predict measurements for each sigma point
+            computeSigmaPointMeasurements<Measurement, MeasurementModel, Args...>(model, sigmaMeasurementPoints, std::forward(args)...);
+
             // Predict measurement from sigma measurement points
             return computePredictionFromSigmaPoints<Measurement>(sigmaMeasurementPoints);
         }
@@ -180,7 +218,8 @@ namespace Kalman {
         
         /**
          * @brief Predict expected sigma states from current sigma states using system model and control input
-         * 
+         * This is the inheritance-based variant.
+         *
          * @note This covers equation (18) of Algorithm 3.1 in the Paper
          *
          * @param [in] s The System Model
@@ -192,6 +231,27 @@ namespace Kalman {
             for( int i = 0; i < SigmaPointCount; ++i )
             {
                 sigmaStatePoints.col(i) = s.f( sigmaStatePoints.col(i), u );
+            }
+        }
+
+        /**
+         * @brief Predict expected sigma states from current sigma states using system model and control input
+         * This is the template-based variant.
+         *
+         * @note This covers equation (18) of Algorithm 3.1 in the Paper
+         *
+         * @param [in] system The System Model
+         * @param [in] args Additional prediction arguments (i.e. control input)
+         */
+        template<class System, typename... Args>
+        typename std::enable_if< Model::isTemplateModel<System, State, Args...>::value >::type
+        computeSigmaPointTransition(System& system, Args&&... args)
+        {
+            for( int i = 0; i < SigmaPointCount; ++i )
+            {
+                State prediction;
+                system.predict(static_cast<State>(sigmaStatePoints.col(i)), std::forward<Args>(args)..., prediction);
+                sigmaStatePoints.col(i) = prediction;
             }
         }
         
@@ -211,7 +271,28 @@ namespace Kalman {
                 sigmaMeasurementPoints.col(i) = m.h( sigmaStatePoints.col(i) );
             }
         }
-        
+
+        /**
+         * @brief Predict the expected sigma measurements from predicted sigma states using measurement model
+         *
+         * @note This covers equation (23) of Algorithm 3.1 in the Paper
+         *
+         * @param [in] m The Measurement model
+         * @param [out] sigmaMeasurementPoints The struct of expected sigma measurements to be computed
+         * @param [in] args Optional measurement function arguments
+         */
+        template<class Measurement, class MeasurementModel, typename... Args>
+        typename std::enable_if< Model::isTemplateModel<MeasurementModel, State, Measurement, Args...>::value >::type
+        computeSigmaPointMeasurements(MeasurementModel& model, SigmaPoints<Measurement>& sigmaMeasurementPoints, Args&&... args)
+        {
+            for( int i = 0; i < SigmaPointCount; ++i )
+            {
+                Measurement measurement;
+                model.measure(static_cast<State>(sigmaStatePoints.col(i)), std::forward<Args>(args)..., measurement);
+                sigmaMeasurementPoints.col(i) = measurement;
+            }
+        }
+
         /**
          * @brief Compute state or measurement prediciton from sigma points using pre-computed sigma weights
          * 

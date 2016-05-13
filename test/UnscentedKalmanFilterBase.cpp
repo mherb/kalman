@@ -8,6 +8,12 @@
 
 using namespace Kalman;
 
+template<typename T>
+using Vector3 = Vector<T, 3>;
+
+template<typename T>
+using Vector2 = Vector<T, 2>;
+
 template<class StateType>
 class ConcreteUKF : public UnscentedKalmanFilterBase<StateType>
 {
@@ -52,33 +58,46 @@ TEST(UnscentedKalmanFilterBase, computeSigmaPointTransition) {
     T alpha = 1, beta = 2, kappa = 1;
     
     auto ukf = ConcreteUKF<Vector<T, 3>>(alpha,beta,kappa);
-    auto model = Kalman::Test::Models::QuadraticLinearizedSystemModel<Vector<T, 3>>();
-    
-    // Init variables
-    ukf.sigmaStatePoints <<
-         1,  2,  3,  4,  5,  6,  7,
-         8,  9, 10, 11, 12, 13, 14,
-        15, 16, 17, 18, 19, 20, 21;
+
+    decltype(ukf.sigmaStatePoints) initial;
+    initial <<
+            1,  2,  3,  4,  5,  6,  7,
+            8,  9, 10, 11, 12, 13, 14,
+            15, 16, 17, 18, 19, 20, 21;
     
     // Control vector
     Vector<T,3> u;
     u << 1, 2, 3;
     
     // Compute reference result
-    Matrix<T,3,7> ref = (ukf.sigmaStatePoints.cwiseProduct(ukf.sigmaStatePoints).colwise() + u).eval();
-    
+    Matrix<T,3,7> ref = (initial.cwiseProduct(initial).colwise() + u).eval();
+
+    // LEGACY System Model
+    // Init variables
+    ukf.sigmaStatePoints = initial;
+    // Create Model
+    auto legacyModel = Kalman::Test::Models::QuadraticLinearizedSystemModel<Vector<T, 3>>();
     // Compute transition
-    ukf.computeSigmaPointTransition(model, u);
-    
+    ukf.computeSigmaPointTransition(legacyModel, u);
     ASSERT_MATRIX_NEAR(ref, ukf.sigmaStatePoints, 1e-10);
+    // END LEGACY
+
+    // TEMPLATE System Model
+    // Init variables
+    ukf.sigmaStatePoints = initial;
+    // Create Model
+    auto templateModel = Kalman::Test::Models::QuadraticTemplateSystemModel<Vector3>();
+    // Compute transition
+    ukf.computeSigmaPointTransition(templateModel, u);
+    ASSERT_MATRIX_NEAR(ref, ukf.sigmaStatePoints, 1e-10);
+    // END TEMPLATE
 }
 
 TEST(UnscentedKalmanFilterBase, computeSigmaPointMeasurements) {
     T alpha = 1, beta = 2, kappa = 1;
     
     auto ukf = ConcreteUKF<Vector<T, 3>>(alpha,beta,kappa);
-    auto model = Kalman::Test::Models::QuadraticLinearizedMeasurementModel<Vector<T, 3>, Vector<T, 2>>();
-    
+
     // Init variables
     ukf.sigmaStatePoints <<
          1,  2,  3,  4,  5,  6,  7,
@@ -90,11 +109,25 @@ TEST(UnscentedKalmanFilterBase, computeSigmaPointMeasurements) {
     Matrix<T,2,7> ref = tmp.cwiseProduct(tmp).eval();
     
     typename ConcreteUKF<Vector<T,3>>::template SigmaPoints<Vector<T,2>> points;
-    
-    ukf.computeSigmaPointMeasurements(model, points);
-    
+
+    // LEGACY System Model
+    // Init model
+    auto legacyModel = Kalman::Test::Models::QuadraticLinearizedMeasurementModel<Vector<T, 3>, Vector<T, 2>>();
+    // Compute points
+    ukf.computeSigmaPointMeasurements(legacyModel, points);
     // Compare ref and result
     ASSERT_MATRIX_NEAR(ref, points, 1e-10);
+    // END LEGACY
+
+    // TEMPLATE System Model
+    // Init model
+    auto templateModel = Kalman::Test::Models::QuadraticTemplateMeasurementModel<Vector3, Vector2>();
+    // Compute points
+    points = decltype(points)::Zero();
+    ukf.computeSigmaPointMeasurements<Vector2<T>, decltype(templateModel)>(templateModel, points);
+    // Compare ref and result
+    ASSERT_MATRIX_NEAR(ref, points, 1e-10);
+    // END TEMPLATE
 }
 
 TEST(UnscentedKalmanFilterBase, computePredictionFromSigmaPoints) {

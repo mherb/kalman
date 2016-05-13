@@ -186,7 +186,69 @@ namespace Kalman {
             
             return this->getState();
         }
-        
+
+        /**
+         * @brief Perform filter prediction step using system model and additional inputs
+         *
+         * @param [in] system The System model
+         * @param [in] args Additional model prediction arguments (i.e. control input, time-step, ...)
+         */
+        template<class System, typename... Args>
+        typename std::enable_if< Model::isTemplateModel<System, State, Args...>::value >::type
+        predict(System& system, Args&&... args)
+        {
+            // Compute sigma points
+            if(!computeSigmaPoints())
+            {
+                // TODO: handle numerical error
+                assert(false);
+            }
+
+            // Compute predicted state
+            x = this->template computeStatePrediction<System, Args...>(system, std::forward<Args>(args)...);
+
+            // Compute predicted covariance
+            computeCovarianceFromSigmaPoints(x, sigmaStatePoints,
+                                             Model::template getCovariance<System, T, State>(system), P);
+        }
+
+        /**
+         * @brief Perform filter update step using measurement \f$z\f$ and corresponding measurement model
+         *
+         * @param [in] model The Measurement model
+         * @param [in] z The measurement vector
+         * @param [in] args Additional measurement arguments
+         */
+        template<class MeasurementModel, class Measurement, typename... Args>
+        typename std::enable_if< Model::isTemplateModel<MeasurementModel, State, Measurement, Args...>::value >::type
+        update(MeasurementModel& model, const Measurement& z, Args&&... args)
+        {
+            SigmaPoints<Measurement> sigmaMeasurementPoints;
+
+            // Compute sigma points (using predicted state)
+            if(!computeSigmaPoints())
+            {
+                // TODO: handle numerical error
+                assert(false);
+            }
+
+            // Predict measurement (and corresponding sigma points)
+            Measurement y = this->template computeMeasurementPrediction<Measurement, MeasurementModel>(model, sigmaMeasurementPoints);
+
+            // Compute innovation covariance
+            Covariance<Measurement> P_yy;
+            computeCovarianceFromSigmaPoints(y, sigmaMeasurementPoints,
+                                             Model::template getCovariance<MeasurementModel, T, Measurement>(model), P_yy);
+
+            KalmanGain<Measurement> K;
+            computeKalmanGain(y, sigmaMeasurementPoints, P_yy, K);
+
+            // Update state
+            x += K * ( z - y );
+
+            // Update state covariance
+            updateStateCovariance<Measurement>(K, P_yy);
+        }
     protected:
         /**
          * @brief Compute sigma points from current state estimate and state covariance
