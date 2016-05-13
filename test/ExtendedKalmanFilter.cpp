@@ -28,6 +28,7 @@ TEST(ExtendedKalmanFilter, predict) {
     Vector3<T> u;
     u << 0, 1, 2;
 
+    // LEGACY Linearized System Model
     Kalman::Test::Models::QuadraticLinearizedSystemModel<Vector3<T>> sysLinearized;
 
     ekf.init(initial);
@@ -37,6 +38,31 @@ TEST(ExtendedKalmanFilter, predict) {
     ASSERT_FLOAT_EQ(1,  ekf.x.x());
     ASSERT_FLOAT_EQ(5,  ekf.x.y());
     ASSERT_FLOAT_EQ(11, ekf.x.z());
+    // END LEGACY
+
+    // AUTO-DIFF
+    Kalman::Test::Models::QuadraticTemplateSystemModel<Vector3> sysAutoDiff;
+
+    ekf.init(initial);
+    ekf.P = decltype(ekf.P)::Identity();
+    ekf.predict(sysAutoDiff, u);
+
+    ASSERT_FLOAT_EQ(1,  ekf.x.x());
+    ASSERT_FLOAT_EQ(5,  ekf.x.y());
+    ASSERT_FLOAT_EQ(11, ekf.x.z());
+    // END AUTO-DIFF
+
+    // EXPLICIT JACOBIAN
+    Kalman::Test::Models::QuadraticTemplateJacobianSystemModel<T, Vector3> sysJacobian;
+
+    ekf.init(initial);
+    ekf.P = decltype(ekf.P)::Identity();
+    ekf.predict(sysJacobian, u);
+
+    ASSERT_FLOAT_EQ(1,  ekf.x.x());
+    ASSERT_FLOAT_EQ(5,  ekf.x.y());
+    ASSERT_FLOAT_EQ(11, ekf.x.z());
+    // END EXPLICIT JACOBIAN
 }
 
 TEST(ExtendedKalmanFilter, update) {
@@ -54,6 +80,7 @@ TEST(ExtendedKalmanFilter, update) {
     expected.x() += innovation.x() * 2*initial.x()/(1+4*initial.x()*initial.x());
     expected.y() += innovation.y() * 2*initial.y()/(1+4*initial.y()*initial.y());
 
+    // LEGACY Linearized Measurement Model
     Kalman::Test::Models::QuadraticLinearizedMeasurementModel<Vector3<T>, Vector2<T>> measLinearized;
 
     ekf.init(initial);
@@ -63,5 +90,29 @@ TEST(ExtendedKalmanFilter, update) {
     ASSERT_FLOAT_EQ(expected.x(),  ekf.x.x());
     ASSERT_FLOAT_EQ(expected.y(),  ekf.x.y());
     ASSERT_FLOAT_EQ(initial.z(), ekf.x.z());
+    // END LEGACY
 
+    // AUTO-DIFF
+    Kalman::Test::Models::QuadraticTemplateMeasurementModel<Vector3, Vector2> measAutoDiff;
+
+    ekf.init(initial);
+    ekf.P = decltype(ekf.P)::Identity();
+    ekf.update(measAutoDiff, z);
+
+    ASSERT_FLOAT_EQ(expected.x(),  ekf.x.x());
+    ASSERT_FLOAT_EQ(expected.y(),  ekf.x.y());
+    ASSERT_FLOAT_EQ(initial.z(), ekf.x.z());
+    // END AUTO-DIFF
+
+    // EXPLICIT JACOBIAN
+    Kalman::Test::Models::QuadraticTemplateJacobianMeasurementModel<T, Vector3, Vector2> measJacobian;
+
+    ekf.init(initial);
+    ekf.P = decltype(ekf.P)::Identity();
+    ekf.update(measJacobian, z);
+
+    ASSERT_FLOAT_EQ(expected.x(),  ekf.x.x());
+    ASSERT_FLOAT_EQ(expected.y(),  ekf.x.y());
+    ASSERT_FLOAT_EQ(initial.z(), ekf.x.z());
+    // END EXPLICIT JACOBIAN
 }

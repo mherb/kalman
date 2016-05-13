@@ -26,6 +26,8 @@
 #include "StandardFilterBase.hpp"
 #include "LinearizedSystemModel.hpp"
 #include "LinearizedMeasurementModel.hpp"
+#include "Model.hpp"
+#include "AutoDiff.hpp"
 
 namespace Kalman {
     
@@ -69,6 +71,20 @@ namespace Kalman {
         //! Covariance type alias
         template<typename Type>
         using Covariance = Kalman::Covariance<T, Type>;
+
+        //! AutoDiff Helper for prediction step
+        using PredictAutoDiff = AutoDiffJacobian<T, State>;
+
+        //! AutoDiff Helper for update step
+        template<class Measurement>
+        using UpdateAutoDiff = AutoDiffJacobian<T, State, Measurement>;
+
+        //! State Jacobian type alias
+        typedef Jacobian<T, State> StateJacobian;
+
+        //! Measurement Jacobian type alias
+        template<class Measurement>
+        using MeasurementJacobian = Jacobian<T, State, Measurement>;
 
     protected:
         //! State Estimate
@@ -151,6 +167,145 @@ namespace Kalman {
             
             // return updated state estimate
             return this->getState();
+        }
+
+        /**
+         * @brief Perform filter prediction step using system model and additional inputs
+         *
+         * @param [in] system The System model
+         * @param [in] args Additional model prediction arguments (i.e. control input, time-step, ...)
+         */
+        template<class System, typename... Args>
+        typename std::enable_if< Model::isTemplateModel<System, State, Args...>::value >::type
+        predict(System& system, Args&&... args)
+        {
+            State prediction;
+            StateJacobian F;
+
+            // Compute prediction and jacobian
+            computePrediction(prediction, F, system, std::forward<Args>(args)...);
+
+            // Update state
+            x = prediction;
+
+            // Predict Covariance
+            // Note: For simplicity, this assumes purely additive noise at the moment.
+            // For non-additive noise, one needs another Jacobian W of system.predict
+            // w.r.t. the noise vector w. This may be added in future versions.
+            P  = ( F * P * F.transpose() ) + Model::template getCovariance<System, T, State>(system);
+        }
+
+        /**
+         * @brief Perform filter update step using measurement \f$z\f$ and corresponding measurement model
+         *
+         * @param [in] model The Measurement model
+         * @param [in] z The measurement vector
+         * @param [in] args Additional measurement arguments
+         */
+        template<class MeasurementModel, class Measurement, typename... Args>
+        typename std::enable_if< Model::isTemplateModel<MeasurementModel, State, Measurement, Args...>::value >::type
+        update(MeasurementModel& model, const Measurement& z, Args&&... args)
+        {
+            // Compute measurement prediction and jacobian
+            Measurement prediction;
+            MeasurementJacobian<Measurement> H;
+            computeMeasurement(prediction, H, model, std::forward<Args>(args)...);
+
+            // COMPUTE KALMAN GAIN
+            // compute innovation covariance
+            Covariance<Measurement> S = ( H * P * H.transpose() )
+                                        + Model::template getCovariance<MeasurementModel, T, Measurement>(model);
+
+            // compute kalman gain
+            KalmanGain<Measurement> K = P * H.transpose() * S.inverse();
+
+            // UPDATE STATE ESTIMATE AND COVARIANCE
+            // Update state using computed kalman gain and innovation
+            x += K * ( z - prediction ).template cast<T>();
+
+            // Update covariance
+            P -= K * H * P;
+        }
+    protected:
+        /**
+         * @brief Compute Prediction using Auto-Diff Jacobian
+         * @param [out] prediction The predicted state
+         * @param [out] jacobian Jacobian of prediction function w.r.t. state
+         * @param [in] system The system model instance
+         * @param [in] args Additional prediction arguments (i.e. control input)
+         */
+        template<class System, typename... Args>
+        typename std::enable_if< !Model::hasJacobian<System, State, Args...>::value >::type
+        computePrediction(State& prediction, StateJacobian& jacobian, System& system, Args&&... args)
+        {
+            typename PredictAutoDiff::Function func
+                    = [&](const typename PredictAutoDiff::ActiveInput& in,
+                          typename PredictAutoDiff::ActiveOutput& out)
+                    {
+                        system.predict(in, std::forward<Args>(args)..., out);
+                    };
+
+            // Note: This doesn't work since the template types cannot be inferred
+            // using namespace std::placeholders;
+            // typename PredictAutoDiff::Function func
+            //         = std::bind(&System::predict, &system, _1, std::ref(args)..., _2);
+
+            // Compute prediction (with jacobian)
+            PredictAutoDiff predictAutoDiff(func);
+            predictAutoDiff(x, prediction, jacobian);
+        }
+
+        /**
+         * @brief Compute Prediction using explicit Jacobian
+         * @param [out] prediction The predicted state
+         * @param [out] jacobian Jacobian of prediction function w.r.t. state
+         * @param [in] system The system model instance
+         * @param [in] args Additional prediction arguments (i.e. control input)
+         */
+        template<class System, typename... Args>
+        typename std::enable_if< Model::hasJacobian<System, State, Args...>::value >::type
+        computePrediction(State& prediction, StateJacobian& jacobian, System& system, Args&&... args)
+        {
+            system.predict(x, std::forward<Args>(args)..., prediction);
+            jacobian = system.getJacobian(x, std::forward<Args>(args)...);
+        }
+
+        /**
+         * @brief Compute Measurement prediction using Auto-Diff Jacobian
+         * @param [out] prediction The predicted/expected measurement vector
+         * @param [out] jacobian Jacobian of measurement function w.r.t state
+         * @param [in] model Measurement model instance
+         * @param [in] args Additional measurement function arguments
+         */
+        template<class MeasurementModel, class Measurement, typename... Args>
+        typename std::enable_if< !Model::hasJacobian<MeasurementModel, Measurement, Args...>::value >::type
+        computeMeasurement(Measurement& prediction, MeasurementJacobian<Measurement>& jacobian, MeasurementModel& model, Args&&... args)
+        {
+            typename UpdateAutoDiff<Measurement>::Function func
+                    = [&](const typename UpdateAutoDiff<Measurement>::ActiveInput& in,
+                          typename UpdateAutoDiff<Measurement>::ActiveOutput& out)
+                    {
+                        model.measure(in, std::forward(args)..., out);
+                    };
+
+            // Compute measurement-prediction (with jacobian)
+            UpdateAutoDiff<Measurement> updateAutoDiff(func);
+            updateAutoDiff(x, prediction, jacobian);
+        }
+
+        /**
+         * @brief Compute Measurement prediction using explicit Jacobian
+         * @param [out] prediction The predicted/expected measurement vector
+         * @param [out] jacobian Jacobian of measurement function w.r.t state
+         * @param [in] model Measurement model instance
+         * @param [in] args Additional measurement function arguments
+         */
+        template<class MeasurementModel, class Measurement, typename... Args>
+        typename std::enable_if< Model::hasJacobian<MeasurementModel, Measurement, Args...>::value >::type
+        computeMeasurement(Measurement& prediction, MeasurementJacobian<Measurement>& jacobian, MeasurementModel& model, Args&&... args)
+        {
+            model.measure(x, std::forward(args)..., prediction);
+            jacobian = model.getJacobian(x, std::forward(args)...);
         }
     };
 }
