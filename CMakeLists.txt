@@ -36,6 +36,7 @@ set(HEADERS
     include/kalman/SquareRootUnscentedKalmanFilter.hpp
 
     # Models
+    include/kalman/Model.hpp
     include/kalman/MeasurementModel.hpp
     include/kalman/SystemModel.hpp
     include/kalman/LinearizedMeasurementModel.hpp
@@ -70,7 +71,10 @@ set(TESTS
     test/UnscentedKalmanFilterBase.cpp
     test/UnscentedKalmanFilter.cpp
     test/SquareRootUnscentedKalmanFilter.cpp
-    
+
+    # Models
+    test/Model.cpp
+
     # Utils
     test/Matrix.cpp
     test/AutoDiff.cpp
