@@ -105,6 +105,8 @@ namespace Kalman {
         /**
          * @brief Perform filter prediction step using system model and no control input (i.e. \f$ u = 0 \f$)
          *
+         * @deprecated Will be removed in future versions. Please use template-based API.
+         *
          * @param [in] s The System model
          * @return The updated state estimate
          */
@@ -119,6 +121,8 @@ namespace Kalman {
         
         /**
          * @brief Perform filter prediction step using control input \f$u\f$ and corresponding system model
+         *
+         * @deprecated Will be removed in future versions. Please use template-based API.
          *
          * @param [in] s The System model
          * @param [in] u The Control input vector
@@ -141,6 +145,8 @@ namespace Kalman {
         
         /**
          * @brief Perform filter update step using measurement \f$z\f$ and corresponding measurement model
+         *
+         * @deprecated Will be removed in future versions. Please use template-based API.
          *
          * @param [in] m The Measurement model
          * @param [in] z The measurement vector

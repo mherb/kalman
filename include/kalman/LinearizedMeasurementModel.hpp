@@ -33,6 +33,8 @@ namespace Kalman {
     /**
      * @brief Abstract base class of all linearized (first order taylor expansion) measurement models
      *
+     * @deprecated Will be removed in future versions. Please use template-based API.
+     *
      * @param StateType The vector-type of the system state (usually some type derived from Kalman::Vector)
      * @param MeasurementType The vector-type of the measurement (usually some type derived from Kalman::Vector)
      * @param CovarianceBase The class template used for covariance storage (must be either StandardBase or SquareRootBase)

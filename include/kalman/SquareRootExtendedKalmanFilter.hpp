@@ -35,6 +35,10 @@ namespace Kalman {
      * This implementation is based upon [An Introduction to the Kalman Filter](https://www.cs.unc.edu/~welch/media/pdf/kalman_intro.pdf)
      * by Greg Welch and Gary Bishop.
      *
+     * @deprecated
+     * Will be removed in future versions. Consider using ExtendedKalmanFilter
+     * or SquareRootUnscentedKalmanFilter instead.
+     *
      * @param StateType The vector-type of the system state (usually some type derived from Kalman::Vector)
      */
     template<class StateType>

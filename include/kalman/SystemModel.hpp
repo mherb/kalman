@@ -31,6 +31,8 @@ namespace Kalman {
     /**
      * @brief Abstract base class of all system models
      *
+     * @deprecated Will be removed in future versions. Please use template-based API.
+     *
      * @param StateType The vector-type of the system state (usually some type derived from Kalman::Vector)
      * @param ControlType The vector-type of the control input (usually some type derived from Kalman::Vector)
      * @param CovarianceBase The class template used for covariance storage (must be either StandardBase or SquareRootBase)
