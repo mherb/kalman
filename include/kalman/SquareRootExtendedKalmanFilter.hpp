@@ -26,6 +26,7 @@
 #include "SquareRootFilterBase.hpp"
 #include "LinearizedSystemModel.hpp"
 #include "LinearizedMeasurementModel.hpp"
+#include "Deprecated.hpp"
 
 namespace Kalman {
     
@@ -42,7 +43,7 @@ namespace Kalman {
      * @param StateType The vector-type of the system state (usually some type derived from Kalman::Vector)
      */
     template<class StateType>
-    class SquareRootExtendedKalmanFilter : public KalmanFilterBase<StateType>,
+    DEPRECATED class SquareRootExtendedKalmanFilter : public KalmanFilterBase<StateType>,
                                            public SquareRootFilterBase<StateType>
     {
     public:

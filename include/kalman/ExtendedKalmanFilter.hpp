@@ -28,6 +28,7 @@
 #include "LinearizedMeasurementModel.hpp"
 #include "Model.hpp"
 #include "AutoDiff.hpp"
+#include "Deprecated.hpp"
 
 namespace Kalman {
     
@@ -111,7 +112,7 @@ namespace Kalman {
          * @return The updated state estimate
          */
         template<class Control, template<class> class CovarianceBase>
-        const State& predict( SystemModelType<Control, CovarianceBase>& s )
+        DEPRECATED const State& predict( SystemModelType<Control, CovarianceBase>& s )
         {
             // predict state (without control)
             Control u;
@@ -129,7 +130,7 @@ namespace Kalman {
          * @return The updated state estimate
          */
         template<class Control, template<class> class CovarianceBase>
-        const State& predict( SystemModelType<Control, CovarianceBase>& s, const Control& u )
+        DEPRECATED const State& predict( SystemModelType<Control, CovarianceBase>& s, const Control& u )
         {
             s.updateJacobians( x, u );
             
@@ -153,7 +154,7 @@ namespace Kalman {
          * @return The updated state estimate
          */
         template<class Measurement, template<class> class CovarianceBase>
-        const State& update( MeasurementModelType<Measurement, CovarianceBase>& m, const Measurement& z )
+        DEPRECATED const State& update( MeasurementModelType<Measurement, CovarianceBase>& m, const Measurement& z )
         {
             m.updateJacobians( x );
             

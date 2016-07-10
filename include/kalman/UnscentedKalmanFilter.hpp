@@ -24,6 +24,7 @@
 
 #include "UnscentedKalmanFilterBase.hpp"
 #include "StandardFilterBase.hpp"
+#include "Deprecated.hpp"
 
 namespace Kalman {
     
@@ -116,7 +117,7 @@ namespace Kalman {
          * @return The updated state estimate
          */
         template<class Control, template<class> class CovarianceBase>
-        const State& predict( const SystemModelType<Control, CovarianceBase>& s )
+        DEPRECATED const State& predict( const SystemModelType<Control, CovarianceBase>& s )
         {
             // predict state (without control)
             Control u;
@@ -134,7 +135,7 @@ namespace Kalman {
          * @return The updated state estimate
          */
         template<class Control, template<class> class CovarianceBase>
-        const State& predict( const SystemModelType<Control, CovarianceBase>& s, const Control& u )
+        DEPRECATED const State& predict( const SystemModelType<Control, CovarianceBase>& s, const Control& u )
         {
             // Compute sigma points
             if(!computeSigmaPoints())
@@ -163,7 +164,7 @@ namespace Kalman {
          * @return The updated state estimate
          */
         template<class Measurement, template<class> class CovarianceBase>
-        const State& update( const MeasurementModelType<Measurement, CovarianceBase>& m, const Measurement& z )
+        DEPRECATED const State& update( const MeasurementModelType<Measurement, CovarianceBase>& m, const Measurement& z )
         {
             SigmaPoints<Measurement> sigmaMeasurementPoints;
             
