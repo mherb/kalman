@@ -71,6 +71,8 @@ set(TESTS
     test/SquareRootUnscentedKalmanFilter.cpp
     
     # Utils
+    test/StandardBase.cpp
+    test/SquareRootBase.cpp
     test/Matrix.cpp
 )
 
