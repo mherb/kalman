@@ -24,6 +24,7 @@
 
 #include "UnscentedKalmanFilterBase.hpp"
 #include "SquareRootFilterBase.hpp"
+#include "Exceptions.hpp"
 
 namespace Kalman {
     
@@ -138,7 +139,7 @@ namespace Kalman {
             if(!computeCovarianceSquareRootFromSigmaPoints(x, sigmaStatePoints, s.getCovarianceSquareRoot(), S))
             {
                 // TODO: handle numerical error
-                assert(false);
+                throw NumericErrorException();
             }
             
             // Return predicted state
@@ -167,8 +168,7 @@ namespace Kalman {
             CovarianceSquareRoot<Measurement> S_y;
             if(!computeCovarianceSquareRootFromSigmaPoints(y, sigmaMeasurementPoints, m.getCovarianceSquareRoot(), S_y))
             {
-                // TODO: handle numerical error
-                assert(false);
+                throw NumericErrorException();
             }
             
             KalmanGain<Measurement> K;
@@ -180,8 +180,7 @@ namespace Kalman {
             // Update state covariance
             if(!updateStateCovariance<Measurement>(K, S_y))
             {
-                // TODO: handle numerical error
-                assert(false);
+                throw NumericErrorException();
             }
             
             return this->getState();

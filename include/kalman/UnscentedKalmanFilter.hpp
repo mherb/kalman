@@ -24,6 +24,7 @@
 
 #include "UnscentedKalmanFilterBase.hpp"
 #include "StandardFilterBase.hpp"
+#include "Exceptions.hpp"
 
 namespace Kalman {
     
@@ -131,8 +132,7 @@ namespace Kalman {
             // Compute sigma points
             if(!computeSigmaPoints())
             {
-                // TODO: handle numerical error
-                assert(false);
+                throw NumericErrorException();
             }
             
             // Compute predicted state
@@ -160,8 +160,7 @@ namespace Kalman {
             // Compute sigma points (using predicted state)
             if(!computeSigmaPoints())
             {
-                // TODO: handle numerical error
-                assert(false);
+                throw NumericErrorException();
             }
             
             // Predict measurement (and corresponding sigma points)
