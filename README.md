@@ -65,7 +65,7 @@ flag. In addition to that the regular optimization flags including `-O2` will ma
 
 The MIT License (MIT)
 
-Copyright (c) 2015 [mherb](https://github.com/mherb)
+Copyright (c) 2015-2017 [mherb](https://github.com/mherb)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
