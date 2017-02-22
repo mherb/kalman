@@ -30,6 +30,14 @@
 #include "AutoDiff.hpp"
 #include "Deprecated.hpp"
 
+#ifndef KALMAN_EKF_SUPPORTS_AUTODIFF
+    // Autodiff is only supported in LLVM/Clang and GCC 4.9+ and later
+    // TODO: add MSVC
+    #if defined(__clang__) || (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ >= 4 && __GNUC_MINOR__ >= 9 )) )
+    #define KALMAN_EKF_SUPPORTS_AUTODIFF
+    #endif
+#endif
+
 namespace Kalman {
     
     /**
@@ -234,6 +242,7 @@ namespace Kalman {
             P -= K * H * P;
         }
     protected:
+#ifdef KALMAN_EKF_SUPPORTS_AUTODIFF
         /**
          * @brief Compute Prediction using Auto-Diff Jacobian
          * @param [out] prediction The predicted state
@@ -261,6 +270,7 @@ namespace Kalman {
             PredictAutoDiff predictAutoDiff(func);
             predictAutoDiff(x, prediction, jacobian);
         }
+#endif
 
         /**
          * @brief Compute Prediction using explicit Jacobian
@@ -277,6 +287,7 @@ namespace Kalman {
             jacobian = system.getJacobian(x, std::forward<Args>(args)...);
         }
 
+#ifdef KALMAN_EKF_SUPPORTS_AUTODIFF
         /**
          * @brief Compute Measurement prediction using Auto-Diff Jacobian
          * @param [out] prediction The predicted/expected measurement vector
@@ -299,6 +310,7 @@ namespace Kalman {
             UpdateAutoDiff<Measurement> updateAutoDiff(func);
             updateAutoDiff(x, prediction, jacobian);
         }
+#endif
 
         /**
          * @brief Compute Measurement prediction using explicit Jacobian

@@ -41,6 +41,7 @@ TEST(ExtendedKalmanFilter, predict) {
     // END LEGACY
 
     // AUTO-DIFF
+#ifdef KALMAN_EKF_SUPPORTS_AUTODIFF
     Kalman::Test::Models::QuadraticTemplateSystemModel<Vector3> sysAutoDiff;
 
     ekf.init(initial);
@@ -51,6 +52,9 @@ TEST(ExtendedKalmanFilter, predict) {
     ASSERT_FLOAT_EQ(5,  ekf.x.y());
     ASSERT_FLOAT_EQ(11, ekf.x.z());
     // END AUTO-DIFF
+#else
+    std::cerr << "ExtendedKalmanFilter: AutoDiff support is disabled because it is not supported by the compiler!" << std::endl;
+#endif
 
     // EXPLICIT JACOBIAN
     Kalman::Test::Models::QuadraticTemplateJacobianSystemModel<T, Vector3> sysJacobian;
@@ -93,6 +97,7 @@ TEST(ExtendedKalmanFilter, update) {
     // END LEGACY
 
     // AUTO-DIFF
+#ifdef KALMAN_EKF_SUPPORTS_AUTODIFF
     Kalman::Test::Models::QuadraticTemplateMeasurementModel<Vector3, Vector2> measAutoDiff;
 
     ekf.init(initial);
@@ -103,6 +108,9 @@ TEST(ExtendedKalmanFilter, update) {
     ASSERT_FLOAT_EQ(expected.y(),  ekf.x.y());
     ASSERT_FLOAT_EQ(initial.z(), ekf.x.z());
     // END AUTO-DIFF
+#else
+    std::cerr << "ExtendedKalmanFilter: AutoDiff support is disabled because it is not supported by the compiler!" << std::endl;
+#endif
 
     // EXPLICIT JACOBIAN
     Kalman::Test::Models::QuadraticTemplateJacobianMeasurementModel<T, Vector3, Vector2> measJacobian;
