@@ -1,5 +1,5 @@
 language: cpp
-sudo: required
+sudo: false
 dist: trusty
 compiler:
 - clang
@@ -20,14 +20,15 @@ env:
 # # Set compiler version
 # - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
 
-install:
-# Install Eigen from source
-- wget https://bitbucket.org/eigen/eigen/get/$EIGEN.tar.bz2 -O /tmp/eigen.tar.bz2
-- mkdir eigen3-src && tar -xvjf /tmp/eigen.tar.bz2 -C eigen3-src --strip-components 1
-- cd eigen3-src && mkdir build && cd build && cmake .. && sudo make install && cd ../..
+before_install:
+  - bash travis_install.sh
+
+cache:
+  directories:
+  - $HOME/eigen
 
 script:
 - mkdir build
 - cd build
-- cmake .. && make
+- cmake -DCMAKE_PREFIX_PATH=$HOME/eigen/$EIGEN .. && make
 - ./kalman_test
