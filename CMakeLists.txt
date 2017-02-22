@@ -44,6 +44,7 @@ set(HEADERS
 
     # Utils
     include/kalman/AutoDiff.hpp
+    include/kalman/Deprecated.hpp
     include/kalman/Matrix.hpp
     include/kalman/Types.hpp
 )
