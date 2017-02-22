@@ -2,8 +2,7 @@
 #  Eigen3_FOUND
 
 find_path( Eigen3_INCLUDE_DIR Eigen/Core
-    /usr/include/eigen3
-    /usr/local/include/eigen3
+    PATH_SUFFIXES eigen3
 )
 
 include(LibFindMacros)
