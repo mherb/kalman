@@ -10,7 +10,10 @@ using namespace Kalman;
 
 template<typename T>
 using Vector3 = Vector<T, 3>;
+template<typename T>
+using Vector2 = Vector<T, 2>;
 
+typedef Vector2<float> Vector2f;
 typedef Vector3<float> Vector3f;
 typedef Vector3<double> Vector3d;
 
@@ -41,6 +44,18 @@ TEST(Model, hasJacobian) {
     {
         typedef Kalman::Test::Models::QuadraticTemplateSystemModel<Vector3> System;
         bool hasJacobian = Model::hasJacobian<System, Vector3f /* state */, Vector3f /* control */>::value;
+        ASSERT_FALSE(hasJacobian);
+    }
+    {
+        typedef Kalman::Test::Models::QuadraticTemplateJacobianMeasurementModel<float, Vector3, Vector2> System;
+        bool hasStateJacobian = Model::hasJacobian<System, Vector3f /* state */>::value;
+        ASSERT_TRUE(hasStateJacobian);
+        bool hasMeasurementJacobian = Model::hasJacobian<System, Vector2f/* measurement */>::value;
+        ASSERT_FALSE(hasMeasurementJacobian);
+    }
+    {
+        typedef Kalman::Test::Models::QuadraticTemplateMeasurementModel<Vector3, Vector2> System;
+        bool hasJacobian = Model::hasJacobian<System, Vector3f /* state */>::value;
         ASSERT_FALSE(hasJacobian);
     }
 }
