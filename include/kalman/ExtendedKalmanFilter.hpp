@@ -296,7 +296,7 @@ namespace Kalman {
          * @param [in] args Additional measurement function arguments
          */
         template<class MeasurementModel, class Measurement, typename... Args>
-        typename std::enable_if< !Model::hasJacobian<MeasurementModel, Measurement, Args...>::value >::type
+        typename std::enable_if< !Model::hasJacobian<MeasurementModel, StateType, Args...>::value >::type
         computeMeasurement(Measurement& prediction, MeasurementJacobian<Measurement>& jacobian, MeasurementModel& model, Args&&... args)
         {
             typename UpdateAutoDiff<Measurement>::Function func
@@ -320,7 +320,7 @@ namespace Kalman {
          * @param [in] args Additional measurement function arguments
          */
         template<class MeasurementModel, class Measurement, typename... Args>
-        typename std::enable_if< Model::hasJacobian<MeasurementModel, Measurement, Args...>::value >::type
+        typename std::enable_if< Model::hasJacobian<MeasurementModel, StateType, Args...>::value >::type
         computeMeasurement(Measurement& prediction, MeasurementJacobian<Measurement>& jacobian, MeasurementModel& model, Args&&... args)
         {
             model.measure(x, std::forward(args)..., prediction);
