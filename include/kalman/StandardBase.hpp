@@ -72,6 +72,20 @@ namespace Kalman {
             return true;
         }
 
+        /**
+         * @brief Set Covariance using Square Root
+         *
+         * @param covSquareRoot Lower triangular Matrix representing the covariance
+         *                      square root (i.e. P = LLˆT)
+         */
+        bool setCovarianceSquareRoot(const Covariance& covSquareRoot)
+        {
+            CovarianceSquareRoot S;
+            S.setL(covSquareRoot);
+            P = S.reconstructedMatrix();
+            return true;
+        }
+
     protected:
         StandardBase()
         {

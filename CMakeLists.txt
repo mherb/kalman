@@ -77,6 +77,8 @@ set(TESTS
     test/Model.cpp
 
     # Utils
+    test/StandardBase.cpp
+    test/SquareRootBase.cpp
     test/Matrix.cpp
     test/AutoDiff.cpp
 

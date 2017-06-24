@@ -71,6 +71,18 @@ namespace Kalman {
             S.compute(covariance);
             return (S.info() == Eigen::Success);
         }
+
+        /**
+         * @brief Set Covariance using Square Root
+         *
+         * @param covSquareRoot Lower triangular Matrix representing the covariance
+         *                      square root (i.e. P = LLˆT)
+         */
+        bool setCovarianceSquareRoot(const Covariance& covSquareRoot)
+        {
+            S.setL(covSquareRoot);
+            return true;
+        }
         
     protected:
         SquareRootBase()

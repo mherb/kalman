@@ -55,14 +55,16 @@ namespace Kalman {
         
     public:
         /**
-         * Control Model Function h
+         * @brief State Transition Function f
          * 
-         * Predicts the estimated measurement value given the current state estimate x
+         * Computes the predicted system state in the next timestep given
+         * the current state x and the control input u
          */
         virtual State f(const State& x, const Control& u) const = 0;
         
     protected:
         SystemModel() {}
+        virtual ~SystemModel() {}
     };
 }
 
