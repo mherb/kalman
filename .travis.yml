@@ -6,7 +6,7 @@ compiler:
 - gcc
 env:
 - EIGEN=3.2.10
-- EIGEN=3.3.3
+- EIGEN=3.3.4
 
 # addons:
 #   apt:
