@@ -157,13 +157,6 @@ namespace Kalman {
         {
             SigmaPoints<Measurement> sigmaMeasurementPoints;
             
-            // Compute sigma points (using predicted state)
-            if(!computeSigmaPoints())
-            {
-                // TODO: handle numerical error
-                assert(false);
-            }
-            
             // Predict measurement (and corresponding sigma points)
             Measurement y = this->template computeMeasurementPrediction<Measurement, CovarianceBase>(m, sigmaMeasurementPoints);
             
