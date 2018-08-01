@@ -9,9 +9,8 @@
 #include <random>
 #include <chrono>
 
-#ifdef _WIN32
-#define M_PI 3.14159265358979323846
-#endif
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 
 using namespace KalmanExamples;
