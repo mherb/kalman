@@ -26,7 +26,7 @@
 #include "StandardFilterBase.hpp"
 
 namespace Kalman {
-    
+
     /**
      * @brief Unscented Kalman Filter (UKF)
      *
@@ -34,7 +34,7 @@ namespace Kalman {
      *
      * This implementation is based upon [The square-root unscented Kalman filter for state and parameter-estimation](http://dx.doi.org/10.1109/ICASSP.2001.940586) by Rudolph van der Merwe and Eric A. Wan.
      * Whenever "the paper" is referenced within this file then this paper is meant.
-     * 
+     *
      * @param StateType The vector-type of the system state (usually some type derived from Kalman::Vector)
      */
     template<class StateType>
@@ -44,16 +44,16 @@ namespace Kalman {
     public:
         //! Unscented Kalman Filter base type
         typedef UnscentedKalmanFilterBase<StateType> UnscentedBase;
-        
+
         //! Standard Filter base type
         typedef StandardFilterBase<StateType> StandardBase;
-        
+
         //! Numeric Scalar Type inherited from base
         using typename UnscentedBase::T;
-        
+
         //! State Type inherited from base
         using typename UnscentedBase::State;
-        
+
         //! Measurement Model Type
         template<class Measurement, template<class> class CovarianceBase>
         using MeasurementModelType = typename UnscentedBase::template MeasurementModelType<Measurement, CovarianceBase>;
@@ -61,37 +61,37 @@ namespace Kalman {
         //! System Model Type
         template<class Control, template<class> class CovarianceBase>
         using SystemModelType = typename UnscentedBase::template SystemModelType<Control, CovarianceBase>;
-        
+
     protected:
         //! The number of sigma points (depending on state dimensionality)
         using UnscentedBase::SigmaPointCount;
-        
+
         //! Matrix type containing the sigma state or measurement points
         template<class Type>
         using SigmaPoints = typename UnscentedBase::template SigmaPoints<Type>;
-        
+
         //! Kalman Gain Matrix Type
         template<class Measurement>
         using KalmanGain = Kalman::KalmanGain<State, Measurement>;
-        
+
     protected:
         // Member variables
-        
+
         //! State Estimate
         using UnscentedBase::x;
-        
+
         //! State Covariance
         using StandardBase::P;
-        
+
         //! Sigma points (state)
         using UnscentedBase::sigmaStatePoints;
-        
+
     public:
         /**
          * Constructor
-         * 
+         *
          * See paper for detailed parameter explanation
-         * 
+         *
          * @param alpha Scaling parameter for spread of sigma points (usually \f$ 1E-4 \leq \alpha \leq 1 \f$)
          * @param beta Parameter for prior knowledge about the distribution (\f$ \beta = 2 \f$ is optimal for Gaussian)
          * @param kappa Secondary scaling parameter (usually 0)
@@ -102,7 +102,7 @@ namespace Kalman {
             // Init covariance to identity
             P.setIdentity();
         }
-       
+
         /**
          * @brief Perform filter prediction step using system model and no control input (i.e. \f$ u = 0 \f$)
          *
@@ -117,7 +117,7 @@ namespace Kalman {
             u.setZero();
             return predict( s, u );
         }
-        
+
         /**
          * @brief Perform filter prediction step using control input \f$u\f$ and corresponding system model
          *
@@ -134,17 +134,17 @@ namespace Kalman {
                 // TODO: handle numerical error
                 assert(false);
             }
-            
+
             // Compute predicted state
             x = this->template computeStatePrediction<Control, CovarianceBase>(s, u);
-            
+
             // Compute predicted covariance
             computeCovarianceFromSigmaPoints(x, sigmaStatePoints, s.getCovariance(), P);
-            
+
             // Return predicted state
             return this->getState();
         }
-        
+
         /**
          * @brief Perform filter update step using measurement \f$z\f$ and corresponding measurement model
          *
@@ -156,44 +156,47 @@ namespace Kalman {
         const State& update( const MeasurementModelType<Measurement, CovarianceBase>& m, const Measurement& z )
         {
             SigmaPoints<Measurement> sigmaMeasurementPoints;
-            
+
             // Predict measurement (and corresponding sigma points)
             Measurement y = this->template computeMeasurementPrediction<Measurement, CovarianceBase>(m, sigmaMeasurementPoints);
-            
+
             // Compute innovation covariance
             Covariance<Measurement> P_yy;
             computeCovarianceFromSigmaPoints(y, sigmaMeasurementPoints, m.getCovariance(), P_yy);
-            
+
             KalmanGain<Measurement> K;
             computeKalmanGain(y, sigmaMeasurementPoints, P_yy, K);
-            
+
             // Update state
             x += K * ( z - y );
-            
+
             // Update state covariance
             updateStateCovariance<Measurement>(K, P_yy);
-            
+
             return this->getState();
         }
-        
+
     protected:
         /**
          * @brief Compute sigma points from current state estimate and state covariance
-         * 
+         *
          * @note This covers equations (6) and (9) of Algorithm 2.1 in the Paper
          */
         bool computeSigmaPoints()
         {
             // Get square root of covariance
-            CovarianceSquareRoot<State> llt;
+           CovarianceSquareRoot<State> llt;
             llt.compute(P);
             if(llt.info() != Eigen::Success)
             {
-                return false;
+                std::cout<<"LLT failed"<<std::endl;
             }
-            
-            SquareMatrix<T, State::RowsAtCompileTime> _S = llt.matrixL().toDenseMatrix();
-            
+
+
+            SquareMatrix<T, State::RowsAtCompileTime> _S_old = llt.matrixL().toDenseMatrix();
+            std::cout<<"root covar variant mherb:"<<std::endl<<_S_old<< std::endl;
+            SquareMatrix<T, State::RowsAtCompileTime> _S =  P.llt().matrixL();
+             std::cout<<"root covar variant rigra:"<<std::endl<<_S<< std::endl;
             // Set left "block" (first column)
             sigmaStatePoints.template leftCols<1>() = x;
             // Set center block with x + gamma * S
@@ -202,13 +205,15 @@ namespace Kalman {
             // Set right block with x - gamma * S
             sigmaStatePoints.template rightCols<State::RowsAtCompileTime>()
                     = (-this->gamma * _S).colwise() + x;
-            
+
+            std::cout<<"weighted root covar"<<std::endl<<this->gamma* _S<<std::endl;
+
             return true;
         }
-        
+
         /**
          * @brief Compute the Covariance from sigma points and noise covariance
-         * 
+         *
          * @param [in] mean The mean predicted state or measurement
          * @param [in] sigmaPoints the predicted sigma state or measurement points
          * @param [in] noiseCov The system or measurement noise covariance
@@ -217,19 +222,19 @@ namespace Kalman {
          * @return True on success, false if a numerical error is encountered when updating the matrix
          */
         template<class Type>
-        bool computeCovarianceFromSigmaPoints(  const Type& mean, const SigmaPoints<Type>& sigmaPoints, 
+        bool computeCovarianceFromSigmaPoints(  const Type& mean, const SigmaPoints<Type>& sigmaPoints,
                                                 const Covariance<Type>& noiseCov, Covariance<Type>& cov)
         {
             decltype(sigmaPoints) W = this->sigmaWeights_c.transpose().template replicate<Type::RowsAtCompileTime,1>();
             decltype(sigmaPoints) tmp = (sigmaPoints.colwise() - mean);
             cov = tmp.cwiseProduct(W) * tmp.transpose() + noiseCov;
-            
+
             return true;
         }
-        
+
         /**
          * @brief Compute the Kalman Gain from predicted measurement and sigma points and the innovation covariance.
-         * 
+         *
          * @note This covers equations (11) and (12) of Algorithm 2.1 in the Paper
          *
          * @param [in] y The predicted measurement
@@ -249,14 +254,14 @@ namespace Kalman {
             Matrix<T, State::RowsAtCompileTime, Measurement::RowsAtCompileTime> P_xy
                     = (sigmaStatePoints.colwise() - x).cwiseProduct( W ).eval()
                     * (sigmaMeasurementPoints.colwise() - y).transpose();
-            
+
             K = P_xy * P_yy.inverse();
             return true;
         }
-        
+
         /**
          * @brief Update the state covariance matrix using the Kalman Gain and the Innovation Covariance
-         * 
+         *
          * @note This covers equation (14) of Algorithm 2.1 in the Paper
          *
          * @param [in] K The computed Kalman Gain matrix
