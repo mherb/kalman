@@ -194,9 +194,9 @@ namespace Kalman {
 
 
             SquareMatrix<T, State::RowsAtCompileTime> _S_old = llt.matrixL().toDenseMatrix();
-            std::cout<<"root covar variant mherb:"<<std::endl<<this->_S_old<< std::endl;
+            std::cout<<"root covar variant mherb:"<<std::endl<<_S_old<< std::endl;
             SquareMatrix<T, State::RowsAtCompileTime> _S =  P.llt().matrixL();
-             std::cout<<"root covar variant rigra:"<<std::endl<<this->_S<< std::endl;
+             std::cout<<"root covar variant rigra:"<<std::endl<<_S<< std::endl;
             // Set left "block" (first column)
             sigmaStatePoints.template leftCols<1>() = x;
             // Set center block with x + gamma * S
