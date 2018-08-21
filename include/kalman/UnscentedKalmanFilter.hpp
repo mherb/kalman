@@ -189,7 +189,7 @@ namespace Kalman {
             llt.compute(P);
             if(llt.info() != Eigen::Success)
             {
-                std::cout<<"LLT failed"<<std::endl;
+                return false;
             }
 
 
