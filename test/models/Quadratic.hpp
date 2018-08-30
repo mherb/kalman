@@ -19,7 +19,7 @@ public:
     using typename Base::State;
     using typename Base::Control;
     
-    State f(const State& x, const Control& u) const
+    State f(const State& x, const Control& u, const double& dt = 1) const
     {
         // return x.^2 + u
         return x.cwiseProduct(x) + u;
