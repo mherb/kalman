@@ -120,6 +120,29 @@ namespace Kalman {
         }
         
         /**
+         * @brief Perform filter prediction step using control input \f$u\f$, timestep \f$dt\f$, and corresponding system model
+         *
+         * @param [in] s The System model
+         * @param [in] u The Control input vector
+         * @param [in] dt The timestep
+         * @return The updated state estimate
+         */
+        template<class Control, template<class> class CovarianceBase>
+        const State& predict( SystemModelType<Control, CovarianceBase>& s, const Control& u, const double& dt)
+        {
+            s.updateJacobians( x, u, dt);
+            
+            // predict state
+            x = s.f(x, u, dt);
+            
+            // predict covariance
+            computePredictedCovarianceSquareRoot<State>(s.F, S, s.W, s.getCovarianceSquareRoot(), S);
+            
+            // return state prediction
+            return this->getState();
+        }
+        
+        /**
          * @brief Perform filter update step using measurement \f$z\f$ and corresponding measurement model
          *
          * @param [in] m The Measurement model

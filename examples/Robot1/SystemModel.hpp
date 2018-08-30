@@ -98,7 +98,7 @@ public:
      * @param [in] u The control vector input
      * @returns The (predicted) system state in the next time-step
      */
-    S f(const S& x, const C& u) const
+    S f(const S& x, const C& u, const double& dt = 0) const
     {
         //! Predicted state vector after transition
         S x_;
