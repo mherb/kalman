@@ -51,9 +51,9 @@ TEST(UnscentedKalmanFilterBase, computeSigmaWeights) {
     // set beta=2 and kappa=0 as default
     kappa =0;
     beta=2;
- 
+
     // StateSize 3
-        for(T alpha=0.0001; alpha <=1; alpha*=3)
+        for(T alpha=0.001; alpha <=1; alpha*=3)
         {
              auto ukf = ConcreteUKF<Vector<T, 3>>(alpha,beta,kappa);
             ukf.computeWeights();
@@ -66,7 +66,7 @@ TEST(UnscentedKalmanFilterBase, computeSigmaWeights) {
         }
 
 		// StateSize 5
-		for (T alpha = 0.0001; alpha <= 1; alpha *= 3)
+		for (T alpha = 0.001; alpha <= 1; alpha *= 3)
 		{
 			auto ukf = ConcreteUKF<Vector<T, 5>>(alpha, beta, kappa);
 			ukf.computeWeights();
@@ -78,7 +78,7 @@ TEST(UnscentedKalmanFilterBase, computeSigmaWeights) {
 			ASSERT_FLOAT_EQ(1.0, sum);
 		}
 		// StateSize 9
-		for (T alpha = 0.0001; alpha <= 1; alpha *= 3)
+		for (T alpha = 0.001; alpha <= 1; alpha *= 3)
 		{
 			auto ukf = ConcreteUKF<Vector<T, 9>>(alpha, beta, kappa);
 			ukf.computeWeights();
@@ -89,7 +89,7 @@ TEST(UnscentedKalmanFilterBase, computeSigmaWeights) {
 			}
 			ASSERT_FLOAT_EQ(1.0, sum);
 		}
-    
+
 
 }
 
