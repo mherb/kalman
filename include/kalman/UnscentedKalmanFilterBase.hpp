@@ -137,7 +137,8 @@ namespace Kalman {
          * @return The predicted measurement
          */
         template<class Measurement, template<class> class CovarianceBase>
-        Measurement computeMeasurementPrediction(const MeasurementModelType<Measurement, CovarianceBase>& m, SigmaPoints<Measurement>& sigmaMeasurementPoints)
+        Measurement computeMeasurementPrediction(const MeasurementModelType<Measurement, CovarianceBase>& m,
+                                                 SigmaPoints<Measurement>& sigmaMeasurementPoints) const
         {
             // Predict measurements for each sigma point
             computeSigmaPointMeasurements<Measurement>(m, sigmaMeasurementPoints);
@@ -204,7 +205,8 @@ namespace Kalman {
          * @param [out] sigmaMeasurementPoints The struct of expected sigma measurements to be computed
          */
         template<class Measurement, template<class> class CovarianceBase>
-        void computeSigmaPointMeasurements(const MeasurementModelType<Measurement, CovarianceBase>& m, SigmaPoints<Measurement>& sigmaMeasurementPoints)
+        void computeSigmaPointMeasurements(const MeasurementModelType<Measurement, CovarianceBase>& m,
+                                           SigmaPoints<Measurement>& sigmaMeasurementPoints) const
         {
             for( int i = 0; i < SigmaPointCount; ++i )
             {
@@ -221,7 +223,7 @@ namespace Kalman {
          * @return The prediction
          */
         template<class Type>
-        Type computePredictionFromSigmaPoints(const SigmaPoints<Type>& sigmaPoints)
+        Type computePredictionFromSigmaPoints(const SigmaPoints<Type>& sigmaPoints) const
         {
             // Use efficient matrix x vector computation
             return sigmaPoints * sigmaWeights_m;

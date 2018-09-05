@@ -221,7 +221,7 @@ namespace Kalman {
          */
         template<class Type>
         bool computeCovarianceSquareRootFromSigmaPoints(const Type& mean, const SigmaPoints<Type>& sigmaPoints, 
-                                                        const CovarianceSquareRoot<Type>& noiseCov, CovarianceSquareRoot<Type>& cov)
+                                                        const CovarianceSquareRoot<Type>& noiseCov, CovarianceSquareRoot<Type>& cov) const
         {
             // Compute QR decomposition of (transposed) augmented matrix
             Matrix<T, 2*State::RowsAtCompileTime + Type::RowsAtCompileTime, Type::RowsAtCompileTime> tmp;
@@ -272,7 +272,7 @@ namespace Kalman {
         bool computeKalmanGain( const Measurement& y,
                                 const SigmaPoints<Measurement>& sigmaMeasurementPoints,
                                 const CovarianceSquareRoot<Measurement>& S_y,
-                                KalmanGain<Measurement>& K)
+                                KalmanGain<Measurement>& K) const
         {
             // Note: The intermediate eval() is needed here (for now) due to a bug in Eigen that occurs
             // when Measurement::RowsAtCompileTime == 1 AND State::RowsAtCompileTime >= 8
