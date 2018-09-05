@@ -218,7 +218,7 @@ namespace Kalman {
          */
         template<class Type>
         bool computeCovarianceFromSigmaPoints(  const Type& mean, const SigmaPoints<Type>& sigmaPoints, 
-                                                const Covariance<Type>& noiseCov, Covariance<Type>& cov)
+                                                const Covariance<Type>& noiseCov, Covariance<Type>& cov) const
         {
             decltype(sigmaPoints) W = this->sigmaWeights_c.transpose().template replicate<Type::RowsAtCompileTime,1>();
             decltype(sigmaPoints) tmp = (sigmaPoints.colwise() - mean);
@@ -241,7 +241,7 @@ namespace Kalman {
         bool computeKalmanGain( const Measurement& y,
                                 const SigmaPoints<Measurement>& sigmaMeasurementPoints,
                                 const Covariance<Measurement>& P_yy,
-                                KalmanGain<Measurement>& K)
+                                KalmanGain<Measurement>& K) const
         {
             // Note: The intermediate eval() is needed here (for now) due to a bug in Eigen that occurs
             // when Measurement::RowsAtCompileTime == 1 AND State::RowsAtCompileTime >= 8

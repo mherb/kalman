@@ -208,7 +208,7 @@ namespace Kalman {
         template<class Type>
         bool computePredictedCovarianceSquareRoot(  const Jacobian<Type, State>& A, const CovarianceSquareRoot<State>& S,
                                                     const Jacobian<Type, Type>& B,  const CovarianceSquareRoot<Type>& R,
-                                                    CovarianceSquareRoot<Type>& S_pred)
+                                                    CovarianceSquareRoot<Type>& S_pred) const
         {
             // Compute QR decomposition of (transposed) augmented matrix
             Matrix<T, State::RowsAtCompileTime + Type::RowsAtCompileTime, Type::RowsAtCompileTime> tmp;
@@ -251,7 +251,7 @@ namespace Kalman {
         template<class Measurement>
         bool computeKalmanGain( const Jacobian<Measurement, State>& H,
                                 const CovarianceSquareRoot<Measurement>& S_y,
-                                KalmanGain<Measurement>& K)
+                                KalmanGain<Measurement>& K) const
         {
             // Solve using backsubstitution
             // AX=B with B = HSS^T and X = K^T and A = S_yS_y^T
