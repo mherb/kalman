@@ -1,12 +1,10 @@
-cmake_minimum_required(VERSION 2.8)
-project(Kalman CXX)
+cmake_minimum_required(VERSION 3.0)
 
-# TODO: Use VERSION argument to project command after raising the minimum
-# cmake version to 3.0
-set(PROJECT_VERSION_MAJOR 0)
-set(PROJECT_VERSION_MINOR 1)
-set(PROJECT_VERSION_PATCH 0)
-set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
+if (POLICY CMP0048)
+  cmake_policy(SET CMP0048 NEW)
+endif(POLICY CMP0048)
+
+project(Kalman VERSION 0.1.0 LANGUAGES CXX)
 
 include(CTest)
 
@@ -64,12 +62,12 @@ endif()
 set(TESTS
     # EKF
     test/ExtendedKalmanFilter.cpp
-    
+
     # UKF
     test/UnscentedKalmanFilterBase.cpp
     test/UnscentedKalmanFilter.cpp
     test/SquareRootUnscentedKalmanFilter.cpp
-    
+
     # Utils
     test/StandardBase.cpp
     test/SquareRootBase.cpp
