@@ -153,8 +153,8 @@ protected:
         // partial derivative of x.theta() w.r.t. x.theta()
         this->F( S::THETA, S::THETA ) = 1;
         
-        // W = df/dw (Jacobian of state transition w.r.t. the noise)
-        this->W.setIdentity();
+        // Q is the process noise covariance matrix
+        this->Q.setIdentity();
         // TODO: more sophisticated noise modelling
         //       i.e. The noise affects the the direction in which we move as 
         //       well as the velocity (i.e. the distance we move)

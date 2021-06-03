@@ -70,9 +70,9 @@ public:
         landmark1 << landmark1x, landmark1y;
         landmark2 << landmark2x, landmark2y;
         
-        // Setup noise jacobian. As this one is static, we can define it once
+        // Setup noise covariance. As this one is static, we can define it once
         // and do not need to update it dynamically
-        this->V.setIdentity();
+        this->R.setIdentity();
     }
     
     /**
