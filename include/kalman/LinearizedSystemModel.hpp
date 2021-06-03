@@ -55,11 +55,11 @@ namespace Kalman {
     protected:
         //! System model jacobian
         Jacobian<State, State> F;
-        //! System model noise jacobian
-        Jacobian<State, State> W;
+        //! Process noise covariance
+        Covariance<State> Q;
         
         /**
-         * Callback function for state-dependent update of Jacobi-matrices F and W before each update step
+         * Callback function for state-dependent update of Jacobi-matrix F before each update step
          */
         virtual void updateJacobians( const State& x, const Control& u )
         {
@@ -71,7 +71,7 @@ namespace Kalman {
         LinearizedSystemModel()
         {
             F.setIdentity();
-            W.setIdentity();
+            Q.setIdentity();
         }
         ~LinearizedSystemModel() {}
     };

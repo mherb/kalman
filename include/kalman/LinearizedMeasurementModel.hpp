@@ -55,11 +55,11 @@ namespace Kalman {
     protected:
         //! Measurement model jacobian
         Jacobian<Measurement, State> H;
-        //! Measurement model noise jacobian
-        Jacobian<Measurement, Measurement> V;
+        //! Measurement noise covariance
+        Covariance<Measurement> R;
         
         /**
-         * Callback function for state-dependent update of Jacobi-matrices H and V before each update step
+         * Callback function for state-dependent update of Jacobi-matrix H before each update step
          */
         virtual void updateJacobians( const State& x )
         {
@@ -70,7 +70,7 @@ namespace Kalman {
         LinearizedMeasurementModel()
         {
             H.setIdentity();
-            V.setIdentity();
+            R.setIdentity();
         }
         ~LinearizedMeasurementModel() {}
     };

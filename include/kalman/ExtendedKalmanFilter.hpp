@@ -113,7 +113,7 @@ namespace Kalman {
             x = s.f(x, u);
             
             // predict covariance
-            P  = ( s.F * P * s.F.transpose() ) + ( s.W * s.getCovariance() * s.W.transpose() );
+            P  = ( s.F * P * s.F.transpose() ) + s.Q;
             
             // return state prediction
             return this->getState();
@@ -133,7 +133,7 @@ namespace Kalman {
             
             // COMPUTE KALMAN GAIN
             // compute innovation covariance
-            Covariance<Measurement> S = ( m.H * P * m.H.transpose() ) + ( m.V * m.getCovariance() * m.V.transpose() );
+            Covariance<Measurement> S = ( m.H * P * m.H.transpose() ) + m.R;
             
             // compute kalman gain
             KalmanGain<Measurement> K = P * m.H.transpose() * S.inverse();
