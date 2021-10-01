@@ -151,8 +151,9 @@ namespace Kalman {
          */
         void computeWeights()
         {
-            T L = T(State::RowsAtCompileTime);
-            lambda = alpha * alpha * ( L + kappa ) - L;
+            T L = static_cast<T>(State::RowsAtCompileTime);
+            T alphaSq = alpha * alpha;
+            lambda = alphaSq * ( L + kappa ) - L;
             gamma = std::sqrt( L + lambda );
             
             // Make sure L != -lambda to avoid division by zero
@@ -162,8 +163,8 @@ namespace Kalman {
             assert( std::abs(L + kappa) > 1e-6 );
             
             T W_m_0 = lambda / ( L + lambda );
-            T W_c_0 = W_m_0 + (T(1) - alpha*alpha + beta);
-            T W_i   = T(1) / ( T(2) * alpha*alpha * (L + kappa) );
+            T W_c_0 = W_m_0 + (T(1) - alphaSq + beta);
+            T W_i   = T(0.5) / ( L + lambda );
             
             // Make sure W_i > 0 to avoid square-root of negative number
             assert( W_i > T(0) );
