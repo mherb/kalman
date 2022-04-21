@@ -57,7 +57,7 @@ namespace Kalman {
         MeasurementModel<StateType, MeasurementType, CovarianceBase>{},
         chi_squared_threshold_{static_cast<T>(boost::math::quantile(CHI_SQUARED_DIST, alpha))} { }
 
-        const T& getChiSquaredThreshold(void) { return chi_squared_threshold_; }
+        const T& getChiSquaredThreshold(void) const { return chi_squared_threshold_; }
     protected:
         virtual ~MahalanobisMeasurementModel() {}
     private:

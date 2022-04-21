@@ -19,19 +19,18 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-#ifndef KALMAN_MAHALANOBIS_UNSCENTED_KALMAN_FILTER_HPP_
-#define KALMAN_MAHALANOBIS_UNSCENTED_KALMAN_FILTER_HPP_
+#ifndef KALMAN_MAHALANOBIS_SQUARE_ROOT_UNSCENTED_KALMAN_FILTER_HPP_
+#define KALMAN_MAHALANOBIS_SQUARE_ROOT_UNSCENTED_KALMAN_FILTER_HPP_
 
-#include "UnscentedKalmanFilter.hpp"
+#include "SquareRootUnscentedKalmanFilter.hpp"
 #include "MahalanobisMeasurementModel.hpp"
-#include <memory>
-
+#include <iostream>
 namespace Kalman {
 
     /**
-     * @brief Unscented Kalman Filter (UKF)
+     * @brief Square Root Unscented Kalman Filter (SR-UKF)
      *
-     * @note It is recommended to use the square-root implementation SquareRootUnscentedKalmanFilter of this filter
+     * @note This is the square-root implementation variant of UnscentedKalmanFilter
      *
      * This implementation is based upon [The square-root unscented Kalman filter for state and parameter-estimation](http://dx.doi.org/10.1109/ICASSP.2001.940586) by Rudolph van der Merwe and Eric A. Wan.
      * Whenever "the paper" is referenced within this file then this paper is meant.
@@ -39,14 +38,17 @@ namespace Kalman {
      * @param StateType The vector-type of the system state (usually some type derived from Kalman::Vector)
      */
     template<class StateType>
-    class UnscentedMahalanobisKalmanFilter : public UnscentedKalmanFilter<StateType>
+    class MahalanobisSquareRootUnscentedKalmanFilter : public SquareRootUnscentedKalmanFilter<StateType>
     {
     public:
         //! Unscented Kalman Filter type
-        typedef UnscentedKalmanFilter<StateType> UnscentedFilterType;
+        typedef SquareRootUnscentedKalmanFilter<StateType> SquareRootUnscentedKalmanFilterType;
 
         //! Unscented Kalman Filter base type
         typedef UnscentedKalmanFilterBase<StateType> UnscentedBase;
+
+        //! Square Root Filter base type
+        typedef SquareRootFilterBase<StateType> SquareRootBase;
 
         //! Numeric Scalar Type inherited from base
         using typename UnscentedBase::T;
@@ -60,7 +62,7 @@ namespace Kalman {
 
         //! Measurement Model Type
         template<class Measurement, template<class> class CovarianceBase>
-        using MeasurementModelType = MeasurementModel<State, Measurement, CovarianceBase>;
+        using MeasurementModelType = typename UnscentedBase::template MeasurementModelType<Measurement, CovarianceBase>;
 
     protected:
         //! Matrix type containing the sigma state or measurement points
@@ -72,8 +74,14 @@ namespace Kalman {
         using KalmanGain = Kalman::KalmanGain<State, Measurement>;
 
     protected:
-        //! State Estimate (member)
+        // Member variables
+
+        //! State Estimate
         using UnscentedBase::x;
+
+        //! Sigma points (state)
+        using UnscentedBase::sigmaStatePoints;
+
     public:
         /**
          * Constructor
@@ -84,9 +92,8 @@ namespace Kalman {
          * @param beta Parameter for prior knowledge about the distribution (\f$ \beta = 2 \f$ is optimal for Gaussian)
          * @param kappa Secondary scaling parameter (usually 0)
          */
-        UnscentedMahalanobisKalmanFilter(T alpha = T(1), T beta = T(2), T kappa = T(0)):
-        UnscentedFilterType(alpha, beta, kappa)
-        {}
+        MahalanobisSquareRootUnscentedKalmanFilter(T alpha = T(1), T beta = T(2), T kappa = T(0)):
+        SquareRootUnscentedKalmanFilter<StateType>{alpha, beta, kappa} {}
 
         /**
          * @brief Perform filter update step using measurement \f$z\f$ and corresponding measurement model
@@ -98,44 +105,39 @@ namespace Kalman {
         template<class Measurement, template<class> class CovarianceBase>
         const State& update( const MeasurementModelType<Measurement, CovarianceBase>& m, const Measurement& z )
         {
-            return UnscentedFilterType::template update(m, z);
+            return SquareRootUnscentedKalmanFilterType::template update(m, z);
         }
 
-        /**
-         * @brief Perform filter update (with outlier prevention) step using measurement \f$z\f$ and corresponding measurement model
+                /**
+         * @brief Perform filter update step using measurement \f$z\f$ and corresponding measurement model
          *
-         * @param [in] m    The Measurement model
-         * @param [in] z    The measurement vector
-         * @param [out] accepted    flag indicating wether or not the measurement was deemed to be an outlier,
-         *                          and hence _not_ used for filter update
-         * @return The (possibly, depending on the accepted flag) updated state estimate
+         * @param [in] m The Measurement model
+         * @param [in] z The measurement vector
+         * @return The updated state estimate
          */
         template<class Measurement, template<class> class CovarianceBase>
-        const State& update(
-            const MahalanobisMeasurementModelType<Measurement, CovarianceBase>& m,
-            const Measurement& z,
-            bool& accepted
-        )
+        const State& update(const MahalanobisMeasurementModelType<Measurement, CovarianceBase>& m, const Measurement& z, bool& accepted)
         {
             SigmaPoints<Measurement> sigmaMeasurementPoints;
             const Measurement y{
-                UnscentedFilterType::template computeMeasurementPrediction<Measurement, CovarianceBase>(m, sigmaMeasurementPoints)
+                SquareRootUnscentedKalmanFilterType::template computeMeasurementPrediction<Measurement, CovarianceBase>(m, sigmaMeasurementPoints)
             };
 
             const Measurement innovation{z - y};
 
-            Covariance<Measurement> innovation_covariance;
-            UnscentedFilterType::template computeCovarianceFromSigmaPoints(y, sigmaMeasurementPoints, m.getCovariance(), innovation_covariance);
-            const T squared_mahalanobis_distance{innovation.transpose() * innovation_covariance.inverse() * innovation};
+            CovarianceSquareRoot<Measurement> innovation_covariance_sqrt;
+            SquareRootUnscentedKalmanFilterType::template computeCovarianceSquareRootFromSigmaPoints(y, sigmaMeasurementPoints, m.getCovarianceSquareRoot(), innovation_covariance_sqrt);
+
+            const T squared_mahalanobis_distance{innovation.transpose() * innovation_covariance_sqrt.reconstructedMatrix().inverse() * innovation};
 
             accepted = squared_mahalanobis_distance <= m.getChiSquaredThreshold();
             if (accepted)
             {
                 KalmanGain<Measurement> K;
-                UnscentedFilterType::template computeKalmanGain(innovation, sigmaMeasurementPoints, innovation_covariance, K);
+                SquareRootUnscentedKalmanFilterType::template computeKalmanGain(innovation, sigmaMeasurementPoints, innovation_covariance_sqrt, K);
 
                 x += K * innovation;
-                UnscentedFilterType::template updateStateCovariance<Measurement>(K, innovation_covariance);
+                SquareRootUnscentedKalmanFilterType::template updateStateCovariance<Measurement>(K, innovation_covariance_sqrt);
             }
             return x;
         }
