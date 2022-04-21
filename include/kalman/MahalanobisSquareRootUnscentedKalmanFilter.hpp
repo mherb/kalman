@@ -111,9 +111,11 @@ namespace Kalman {
                 /**
          * @brief Perform filter update step using measurement \f$z\f$ and corresponding measurement model
          *
-         * @param [in] m The Measurement model
-         * @param [in] z The measurement vector
-         * @return The updated state estimate
+         * @param [in] m    The Measurement model
+         * @param [in] z    The measurement vector
+         * @param [out] accepted    flag indicating wether or not the measurement was deemed to be an outlier,
+         *                          and hence _not_ used for filter update
+         * @return The (possibly, depending on the accepted flag) updated state estimate
          */
         template<class Measurement, template<class> class CovarianceBase>
         const State& update(const MahalanobisMeasurementModelType<Measurement, CovarianceBase>& m, const Measurement& z, bool& accepted)
