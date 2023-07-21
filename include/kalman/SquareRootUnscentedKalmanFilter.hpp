@@ -74,7 +74,7 @@ namespace Kalman {
         template<class Measurement>
         using KalmanGain = Kalman::KalmanGain<State, Measurement>;
 
-    protected:
+    public:
         // Member variables
 
         //! State Estimate
@@ -150,11 +150,19 @@ namespace Kalman {
          *
          * @param [in] m The Measurement model
          * @param [in] z The measurement vector
+         * @param [in] x_in The state at the measurement time
+         * @param [in] S_in Square root covariance at measurement time
          * @return The updated state estimate
          */
         template<class Measurement, template<class> class CovarianceBase>
-        const State& update( const MeasurementModelType<Measurement, CovarianceBase>& m, const Measurement& z )
+        const State& update( const MeasurementModelType<Measurement, CovarianceBase>& m,
+                             const Measurement& z,
+                             const State& x_in,
+                             const CovarianceSquareRoot<State>& S_in)
         {
+            S = S_in;
+            x = x_in;
+            
             SigmaPoints<Measurement> sigmaMeasurementPoints;
 
             // Predict measurement (and corresponding sigma points)
@@ -182,6 +190,19 @@ namespace Kalman {
             }
 
             return this->getState();
+        }
+
+        /**
+         * @brief Perform filter update step using measurement \f$z\f$ and corresponding measurement model
+         *
+         * @param [in] m The Measurement model
+         * @param [in] z The measurement vector
+         * @return The updated state estimate
+         */
+        template<class Measurement, template<class> class CovarianceBase>
+        const State& update( const MeasurementModelType<Measurement, CovarianceBase>& m, const Measurement& z )
+        {
+            return update(m, z, x, S);
         }
 
     protected:
