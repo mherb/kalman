@@ -74,7 +74,7 @@ namespace Kalman {
         template<class Measurement>
         using KalmanGain = Kalman::KalmanGain<State, Measurement>;
 
-    public:
+    protected:
         // Member variables
 
         //! State Estimate
