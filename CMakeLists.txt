@@ -1,4 +1,14 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.8)
+
+find_package(Enzyme REQUIRED CONFIG NO_DEFAULT_PATH)
+
+message("LLVM Version: " ${Enzyme_LLVM_VERSION_MAJOR})
+message("Found LLVM at: " ${Enzyme_LLVM_BINARY_DIR})
+
+# C and C++ Compilers can only be configured before project(...)
+set(CMAKE_C_COMPILER "${Enzyme_LLVM_BINARY_DIR}/bin/clang")
+set(CMAKE_CXX_COMPILER "${Enzyme_LLVM_BINARY_DIR}/bin/clang++")
+
 project(Kalman CXX)
 
 # TODO: Use VERSION argument to project command after raising the minimum
@@ -15,6 +25,8 @@ set(KALMAN_CXX_FLAGS "-std=c++11")
 option(KALMAN_BUILD_EXAMPLES "Build the Kalman examples" ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
+message("Found Enzyme at: " ${ClangEnzyme})
 
 find_package(Eigen3 REQUIRED)
 
@@ -58,6 +70,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DEIGEN_NO_DEBUG")
 # Examples
 if(KALMAN_BUILD_EXAMPLES)
   add_executable(example_robot1 "examples/Robot1/main.cpp")
+  target_link_libraries(example_robot1 PUBLIC LLDEnzymeFlags)
 endif()
 
 # Unit Tests
